@@ -41,8 +41,8 @@ void image_free(image_t img);
                                           float a);
 
 #define DEFINE_VEC_ADD_FUNCTION(type)                                \
-    vec3_type##_t vec3_##type##_add(vec3_type##_t* v1,               \
-                                    vec3_##type##_t* v2) {           \
+    vec3_##type##_t vec3_##type##_add(vec3_##type##_t* v1,           \
+                                      vec3_##type##_t* v2) {         \
         vec3_##type##_t ret;                                         \
         ret.x = v1->x + v2->x;                                       \
         ret.y = v1->y + v2->y;                                       \
@@ -51,7 +51,7 @@ void image_free(image_t img);
     }
 
 #define DEFINE_VEC_SUB_FUNCTION(type)                                \
-    vec3_##type##_t vec3_##type##_sum(vec3_##type##_t* v1,           \
+    vec3_##type##_t vec3_##type##_sub(vec3_##type##_t* v1,           \
                                       vec3_##type##_t* v2) {         \
         vec3_##type##_t ret;                                         \
         ret.x = v2->x - v1->x;                                       \

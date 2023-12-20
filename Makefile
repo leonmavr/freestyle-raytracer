@@ -1,2 +1,2 @@
 all:
-	gcc types.c main.c 
+	gcc -g background.c types.c main.c 

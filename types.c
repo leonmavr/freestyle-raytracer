@@ -1,5 +1,6 @@
 #include "types.h" 
 #include <stdlib.h>
+#include <stdio.h>
 
 image_t image_new() {
     vec3_u8_t** ret = malloc(HEIGHT * sizeof(vec3_u8_t*));
@@ -20,3 +21,9 @@ void image_free(image_t img) {
     free(img);
 }
 
+DEFINE_VEC_ADD_FUNCTION(u8)
+DEFINE_VEC_ADD_FUNCTION(u32)
+DEFINE_VEC_SUB_FUNCTION(u8)
+DEFINE_VEC_SUB_FUNCTION(u32)
+DEFINE_VEC_SCALMUL_FUNCTION(u8)
+DEFINE_VEC_SCALMUL_FUNCTION(u32)
