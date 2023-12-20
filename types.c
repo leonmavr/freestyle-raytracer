@@ -19,3 +19,4 @@ void image_free(image_t img) {
         free(img[i]);
     free(img);
 }
+
