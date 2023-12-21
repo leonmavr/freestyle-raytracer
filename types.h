@@ -2,6 +2,7 @@
 #define TYPES_H 
 
 #include <stdint.h>
+#include <math.h>
 
 
 #ifndef HEIGHT
@@ -44,9 +45,16 @@ void image_free(image_t img);
     vec3_##type##_t vec3_##type##_scalmul(vec3_##type##_t* v1,       \
                                           float a);
 
-#define DECLARE_VEC_DOT_FUNCTION(type)                              \
-    float vec3_##type##_dot(vec3_##type##_t* v1,                    \
+#define DECLARE_VEC_DOT_FUNCTION(type)                               \
+    float vec3_##type##_dot(vec3_##type##_t* v1,                     \
                                 vec3_##type##_t* v2);
+
+#define DECLARE_VEC_NORM_FUNCTION(type)                              \
+    float vec3_##type##_norm(vec3_##type##_t* v1);
+
+#define DECLARE_VEC_GET_UNIT_FUNCTION(type)                          \
+    vec3_f_t vec3_##type##_get_unit(vec3_##type##_t* v1);
+ 
 
 #define DEFINE_VEC_ADD_FUNCTION(type)                                \
     vec3_##type##_t vec3_##type##_add(vec3_##type##_t* v1,           \
@@ -85,18 +93,39 @@ void image_free(image_t img);
         return (float)v1->x*v2->x + v1->y*v2->y + v1->z*v2->z;     \
     }
 
-DECLARE_VEC_ADD_FUNCTION(u8);
-DECLARE_VEC_ADD_FUNCTION(i32);
-DECLARE_VEC_ADD_FUNCTION(f);
-DECLARE_VEC_SUB_FUNCTION(u8);
-DECLARE_VEC_SUB_FUNCTION(i32);
-DECLARE_VEC_SUB_FUNCTION(f);
-DECLARE_VEC_SCALMUL_FUNCTION(u8);
-DECLARE_VEC_SCALMUL_FUNCTION(i32);
-DECLARE_VEC_SCALMUL_FUNCTION(f);
-DECLARE_VEC_DOT_FUNCTION(u8);
-DECLARE_VEC_DOT_FUNCTION(i32);
-DECLARE_VEC_DOT_FUNCTION(f);
+
+#define DEFINE_VEC_NORM_FUNCTION(type)                             \
+    float vec3_##type##_norm(vec3_##type##_t* v1) {                \
+        const float xx = v1->x * v1->x;                            \
+        const float yy = v1->y * v1->y;                            \
+        const float zz = v1->z * v1->z;                            \
+        return sqrt(xx + yy + zz);                                 \
+    }
+
+#define DEFINE_VEC_GET_UNIT_FUNCTION(type)                         \
+    vec3_f_t vec3_##type##_get_unit(vec3_##type##_t* v1) {         \
+        const float n = vec3_##type##_norm(v1);                    \
+        return (vec3_f_t) {v1->x/n, v1->y/n, v1->z/n};             \
+    }
+
+DECLARE_VEC_ADD_FUNCTION(u8)
+DECLARE_VEC_ADD_FUNCTION(i32)
+DECLARE_VEC_ADD_FUNCTION(f)
+DECLARE_VEC_SUB_FUNCTION(u8)
+DECLARE_VEC_SUB_FUNCTION(i32)
+DECLARE_VEC_SUB_FUNCTION(f)
+DECLARE_VEC_SCALMUL_FUNCTION(u8)
+DECLARE_VEC_SCALMUL_FUNCTION(i32)
+DECLARE_VEC_SCALMUL_FUNCTION(f)
+DECLARE_VEC_DOT_FUNCTION(u8)
+DECLARE_VEC_DOT_FUNCTION(i32)
+DECLARE_VEC_DOT_FUNCTION(f)
+DECLARE_VEC_NORM_FUNCTION(u8)
+DECLARE_VEC_NORM_FUNCTION(i32)
+DECLARE_VEC_NORM_FUNCTION(f)
+DECLARE_VEC_GET_UNIT_FUNCTION(u8)
+DECLARE_VEC_GET_UNIT_FUNCTION(i32)
+DECLARE_VEC_GET_UNIT_FUNCTION(f)
 
 
 #endif // TYPES_H

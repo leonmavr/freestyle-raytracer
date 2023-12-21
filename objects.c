@@ -37,7 +37,7 @@ void ray_set(ray_t* ray, vec3_i32_t* start, vec3_i32_t* end) {
     ray->origin.x = start->x; 
     ray->origin.y = start->y; 
     ray->origin.z = start->z; 
-    vec3_f_t dir = (vec3_f_t) {end->x - start->x, end->y - start->y, end->z - start->z};
-    // TODO: make dir uni
-
+    vec3_i32_t diff = vec3_i32_sub(start, end);
+    vec3_f_t fdiff = (vec3_f_t) {diff.x, diff.y, diff.z};
+    ray->dir = vec3_f_get_unit(&fdiff);
 }

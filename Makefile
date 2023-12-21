@@ -1,2 +1,2 @@
 all:
-	gcc -g background.c types.c main.c 
+	gcc -g raytracer.c objects.c background.c types.c main.c -lm
