@@ -23,6 +23,10 @@ typedef struct vec3_u32_t {
     u32_t x, y, z;
 } vec3_u32_t;
 
+typedef struct vec3_f_t {
+    float x, y, z;
+} vec3_f_t;
+
 typedef vec3_u8_t** image_t;
 
 image_t image_new();
@@ -39,6 +43,10 @@ void image_free(image_t img);
 #define DECLARE_VEC_SCALMUL_FUNCTION(type)                           \
     vec3_##type##_t vec3_##type##_scalmul(vec3_##type##_t* v1,       \
                                           float a);
+
+#define DECLARE_VEC_DOT_FUNCTION(type)                              \
+    float vec3_##type##_dot(vec3_##type##_t* v1,                    \
+                                vec3_##type##_t* v2);
 
 #define DEFINE_VEC_ADD_FUNCTION(type)                                \
     vec3_##type##_t vec3_##type##_add(vec3_##type##_t* v1,           \
@@ -71,12 +79,24 @@ void image_free(image_t img);
         return ret;                                                 \
     }
 
+#define DEFINE_VEC_DOT_FUNCTION(type)                              \
+    float vec3_##type##_dot(vec3_##type##_t* v1,                   \
+                                vec3_##type##_t* v2) {             \
+        return (float)v1->x*v2->x + v1->y*v2->y + v1->z*v2->z;     \
+    }
+
 DECLARE_VEC_ADD_FUNCTION(u8);
 DECLARE_VEC_ADD_FUNCTION(u32);
+DECLARE_VEC_ADD_FUNCTION(f);
 DECLARE_VEC_SUB_FUNCTION(u8);
 DECLARE_VEC_SUB_FUNCTION(u32);
+DECLARE_VEC_SUB_FUNCTION(f);
 DECLARE_VEC_SCALMUL_FUNCTION(u8);
 DECLARE_VEC_SCALMUL_FUNCTION(u32);
+DECLARE_VEC_SCALMUL_FUNCTION(f);
+DECLARE_VEC_DOT_FUNCTION(u8);
+DECLARE_VEC_DOT_FUNCTION(u32);
+DECLARE_VEC_DOT_FUNCTION(f);
 
 
 #endif // TYPES_H

@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     vec3_u8_add(&col_bottom, &col_top);
     bg_create(&img, &col_top, &col_bottom, &col_grass);
     write_ppm(img);
-    free(img);
+    image_free(img);
     printf("done\n");
 
     return 0;

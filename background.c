@@ -4,7 +4,7 @@
 #include <stddef.h> // size_t
 
 void bg_create(image_t* img, vec3_u8_t* col_top, vec3_u8_t* col_bottom,
-                  vec3_u8_t* col_grass) {
+               vec3_u8_t* col_grass) {
     // draw the sky as a vertical gradient
     // TODO: clamp instead of asserting
     assert((col_top->x >= col_bottom->x) && (col_top->y >= col_bottom->y)
@@ -36,9 +36,9 @@ void bg_create(image_t* img, vec3_u8_t* col_top, vec3_u8_t* col_bottom,
             vec3_u8_t block_color = (i/block_height + j/block_width) % 2 == 0 ?
                                     col1 : col2;
             // fill the block with the chosen color
-            for (size_t x = i; x < i + block_height && x < HEIGHT; ++x) {
-                for (size_t y = j; y < j + block_width && y < WIDTH; ++y) {
-                    (*img)[x][y] = block_color;
+            for (size_t ii = i; ii < i + block_height && ii < HEIGHT; ++ii) {
+                for (size_t jj = j; jj < j + block_width && jj < WIDTH; ++jj) {
+                    (*img)[ii][jj] = block_color;
                 }
             }
         }
