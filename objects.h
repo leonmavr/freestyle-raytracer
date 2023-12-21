@@ -11,9 +11,11 @@ typedef struct ray_t {
 
 typedef struct sphere_t {
     vec3_u32_t origin;
-    vec3_u32_t rad;
+    u32_t rad;
 } sphere_t;
 
 vec3_u32_t ray_at(ray_t* ray, float t);
+
+vec3_u32_t ray_sphere_inters(ray_t* ray, sphere_t* sph);
 
 #endif /* OBJECTS_H */
