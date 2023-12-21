@@ -13,15 +13,15 @@
 #endif
 
 typedef unsigned char u8_t;
-typedef uint32_t u32_t;
+typedef int32_t i32_t;
 
 typedef struct vec3_u8_t {
     u8_t x, y, z;
 } vec3_u8_t;
 
-typedef struct vec3_u32_t {
-    u32_t x, y, z;
-} vec3_u32_t;
+typedef struct vec3_i32_t {
+    i32_t x, y, z;
+} vec3_i32_t;
 
 typedef struct vec3_f_t {
     float x, y, z;
@@ -86,16 +86,16 @@ void image_free(image_t img);
     }
 
 DECLARE_VEC_ADD_FUNCTION(u8);
-DECLARE_VEC_ADD_FUNCTION(u32);
+DECLARE_VEC_ADD_FUNCTION(i32);
 DECLARE_VEC_ADD_FUNCTION(f);
 DECLARE_VEC_SUB_FUNCTION(u8);
-DECLARE_VEC_SUB_FUNCTION(u32);
+DECLARE_VEC_SUB_FUNCTION(i32);
 DECLARE_VEC_SUB_FUNCTION(f);
 DECLARE_VEC_SCALMUL_FUNCTION(u8);
-DECLARE_VEC_SCALMUL_FUNCTION(u32);
+DECLARE_VEC_SCALMUL_FUNCTION(i32);
 DECLARE_VEC_SCALMUL_FUNCTION(f);
 DECLARE_VEC_DOT_FUNCTION(u8);
-DECLARE_VEC_DOT_FUNCTION(u32);
+DECLARE_VEC_DOT_FUNCTION(i32);
 DECLARE_VEC_DOT_FUNCTION(f);
 
 
