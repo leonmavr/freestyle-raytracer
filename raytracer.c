@@ -2,13 +2,33 @@
 #include "objects.h" 
 #include "types.h" 
 #include "background.h" 
+#include <stdio.h>
 
-void rt_run(image_t* canvas, sphere_t* sph, image_t* bg) {
-    for (int r = 0; r < HEIGHT; ++r) {
-        for (int c = 0; c < WIDTH; ++c) {
-            (*canvas)[r][c].x = (*bg)[r][c].x; 
-            (*canvas)[r][c].y = (*bg)[r][c].y; 
-            (*canvas)[r][c].z = (*bg)[r][c].z; 
+void rt_run(image_t* canvas, sphere_t* sph, image_t* bg, camera_t* cam) {
+    ray_t ray;
+    float theta = 0; // TODO camera fov
+    // the plane where to send the rays to
+    i32_t plane_z = (float)HEIGHT/2/tan(cam->fovy_rad/2);
+    // where to send the ray
+    vec3_i32_t end;
+    // z coordinate of fov along x and y axes
+    for (int r = -HEIGHT/2; r < HEIGHT/2; ++r) {
+        for (int c = -WIDTH/2; c < WIDTH/2; ++c) {
+            // TODO: sub -H/2, -W/2
+            end = (vec3_i32_t) {c, r, plane_z};
+            ray_set(&ray, &ray.origin, &end);
+            // TODO: make vector to end
+            //ray_set(&ray, &ray.origin, )
+            (*canvas)[r+HEIGHT/2][c+WIDTH/2].x = (*bg)[r+HEIGHT/2][c+WIDTH/2].x; 
+            (*canvas)[r+HEIGHT/2][c+WIDTH/2].y = (*bg)[r+HEIGHT/2][c+WIDTH/2].y; 
+            (*canvas)[r+HEIGHT/2][c+WIDTH/2].z = (*bg)[r+HEIGHT/2][c+WIDTH/2].z; 
+            // paint intersections red
+            if (ray_sphere_inters(&ray, sph).z != 0) {
+                (*canvas)[r+HEIGHT/2][c+WIDTH/2].x = 255;
+                (*canvas)[r+HEIGHT/2][c+WIDTH/2].y = 0;
+                (*canvas)[r+HEIGHT/2][c+WIDTH/2].z = 0;
+            }
         }
     }
 }
+

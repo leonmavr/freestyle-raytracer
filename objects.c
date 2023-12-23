@@ -1,5 +1,11 @@
 #include "objects.h"
 #include <math.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#define DEG_TO_RAD(degrees) ((degrees) * M_PI / 180.0)
+
 
 vec3_i32_t ray_at(ray_t* ray, float t) {
     vec3_f_t v = vec3_f_scalmul(&ray->dir, t);
@@ -17,20 +23,46 @@ vec3_i32_t ray_sphere_inters(ray_t* ray, sphere_t* sph) {
     i32_t r = sph->rad;
     const float a = vec3_f_dot(&B, &B);
     // b = 2B (C - A)
-    vec3_i32_t utmp = vec3_i32_sub(&A, &C);
+    vec3_i32_t utmp = vec3_i32_sub(&C, &A);
     vec3_f_t ftmp = (vec3_f_t){utmp.x, utmp.y, utmp.z};
     const float b = 2*vec3_f_dot(&B, &ftmp);
     const float c = vec3_i32_dot(&utmp, &utmp) - r*r;
+#if 0
+    vec3 oc = r.origin() - center;
+    auto a = dot(r.direction(), r.direction());
+    auto b = 2.0 * dot(oc, r.direction());
+    auto c = dot(oc, oc) - radius*radius;
+    auto discriminant = b*b - 4*a*c;
+#endif
     // the solutions of the 2nd order equation for t
-    float sqrt_discr = sqrt(b*b - 4*a*c);
-    const float t1 = (-b + sqrt_discr)/(2*a);
-    const float t2 = (-b - sqrt_discr)/(2*a);
-    // keep the smallest (t0)
-    const float t0 = (t1 < t2) ? t1 : t2;
-    // coordinates of intersection (A+t0*B)
-    vec3_i32_t inters = (vec3_i32_t) {A.x + t0*B.x, A.y + t0*B.y,
-                                      A.z + t0*B.z};
-    return inters;
+    float discr = sqrt(b*b - 4*a*c);
+    if (discr > 0) {
+        const float sqrt_discr = sqrt(discr);
+        const float t1 = (-b + sqrt_discr)/(2*a);
+        const float t2 = (-b - sqrt_discr)/(2*a);
+        // keep the smallest (t0)
+        const float t0 = (t1 < t2) ? t1 : t2;
+        // coordinates of intersection (A+t0*B)
+        vec3_i32_t inters = (vec3_i32_t) {A.x + t0*B.x, A.y + t0*B.y,
+                                        A.z + t0*B.z};
+        return inters;
+    } else // TODO: better way to describe intersection
+        return (vec3_i32_t) {0, 0, 0};
+}
+
+void cam_set(camera_t* cam, i32_t cx, i32_t cy, i32_t f, float fov_deg) {
+    cam->cx = cx;
+    cam->cy = cy;
+    cam->f = f;
+    cam->fovy_rad = DEG_TO_RAD(fov_deg);
+    cam->fovx_rad = (float)WIDTH/HEIGHT*DEG_TO_RAD(fov_deg);
+}
+
+bool cam_is_visible(camera_t* cam, vec3_i32_t* p) {
+    // height and width of fov pyramid
+    i32_t dy = HEIGHT/tan(cam->fovy_rad/2);
+    i32_t dx = WIDTH/HEIGHT*dy;
+    return (abs(p->x) <= dx + cam->cx) && (abs(p->y) <= dy + cam->cy);
 }
 
 void ray_set(ray_t* ray, vec3_i32_t* start, vec3_i32_t* end) {

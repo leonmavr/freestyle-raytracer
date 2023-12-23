@@ -15,9 +15,11 @@ int main(int argc, char *argv[])
     vec3_u8_t col_grass = {50, 220, 30};
     vec3_u8_add(&col_bottom, &col_top);
     bg_create(&bg, &col_top, &col_bottom, &col_grass);
-    //write_ppm(img);
-    sphere_t sph;
-    rt_run(&canvas, &sph, &bg);
+    camera_t cam;
+    cam_set(&cam, 0, 0, 100, 60);
+    sphere_t sph = (sphere_t) {(vec3_i32_t) {100, 0, 100}, 25};
+    rt_run(&canvas, &sph, &bg, &cam);
+    write_ppm(canvas);
     image_free(bg);
     image_free(canvas);
     printf("done\n");

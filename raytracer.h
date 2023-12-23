@@ -5,7 +5,7 @@
 #include "types.h" 
 #include "background.h" 
 
-void rt_run(image_t* canvas, sphere_t* sph, image_t* bg);
+void rt_run(image_t* canvas, sphere_t* sph, image_t* bg, camera_t* cam);
 
 
 #endif // RAYTRACER_H
