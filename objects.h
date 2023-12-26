@@ -13,7 +13,12 @@ typedef struct ray_t {
 typedef struct sphere_t {
     vec3_i32_t origin;
     i32_t rad;
+    float coeff_diffuse; // diffuse coefficient from 0 to 1
+    vec3_i32_t color;
+    i32_t color_range;
 } sphere_t;
+
+vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where);
 
 typedef struct camera_t {
     i32_t cx; // centre x
@@ -26,6 +31,8 @@ typedef struct camera_t {
 vec3_i32_t ray_at(ray_t* ray, float t);
 
 void ray_set(ray_t* ray, vec3_i32_t* start, vec3_i32_t* end);
+
+vec3_u8_t sphere_reflect(sphere_t* sph, ray_t* ray);
 
 void cam_set(camera_t* cam, i32_t cx, i32_t cy, i32_t f, float fov_deg);
 

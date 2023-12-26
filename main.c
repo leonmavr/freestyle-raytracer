@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     bg_create(&bg, &col_top, &col_bottom, &col_grass);
     camera_t cam;
     cam_set(&cam, 0, 0, 100, 60);
-    sphere_t sph = (sphere_t) {(vec3_i32_t) {100, 0, 100}, 25};
+    sphere_t sph = (sphere_t) {(vec3_i32_t) {80, 20, 200}, 25};
     rt_run(&canvas, &sph, &bg, &cam);
     write_ppm(canvas);
     image_free(bg);

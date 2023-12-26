@@ -50,6 +50,38 @@ vec3_i32_t ray_sphere_inters(ray_t* ray, sphere_t* sph) {
         return (vec3_i32_t) {0, 0, 0};
 }
 
+/* get outward normal at a point on a sphere */
+vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where) {
+    vec3_i32_t normal = vec3_i32_sub(&sph->origin, where);
+    normal = vec3_i32_add(&normal, where);
+    vec3_f_t fnormal = vec3_i32_get_unit(&normal);
+    // unit(where - origin)
+    return (vec3_f_t) {fnormal.x, fnormal.y, fnormal.z};
+}
+
+static vec3_f_t vec3_f_unit_random() {
+    float phi = (float)rand() / RAND_MAX * M_PI;
+    float theta = (float)rand() / RAND_MAX * M_2_PI;
+    float x = cos(theta) * sin(phi);
+    float y = sin(theta) * sin(phi);
+    float z = cos(phi);
+    return (vec3_f_t) {x, y, z};
+}
+
+vec3_u8_t sphere_reflect(sphere_t* sph, ray_t* ray) {
+    vec3_i32_t inters = ray_sphere_inters(ray, sph);
+    vec3_f_t normal = sphere_unit_normal(sph, &inters);
+    vec3_f_t rand_unit = vec3_f_unit_random();
+    vec3_f_t ps = vec3_f_add(&normal, &rand_unit);
+    vec3_f_t fcolor = (vec3_f_t) {normal.x * ps.x, 
+                      normal.y * ps.y, normal.z * ps.z};
+    //printf("%.2f, %.2f, %.2f\n", normal.x, normal.y, normal.z);
+    //ray->origin = inters;
+    //ray->dir = vec3_f_get_unit(&ps);
+    float scale = 0.5*0.6*255;
+    return (vec3_u8_t) {fcolor.x * scale, fcolor.y * scale, fcolor.z * scale};
+}
+
 void cam_set(camera_t* cam, i32_t cx, i32_t cy, i32_t f, float fov_deg) {
     cam->cx = cx;
     cam->cy = cy;

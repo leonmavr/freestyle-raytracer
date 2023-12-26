@@ -24,9 +24,10 @@ void rt_run(image_t* canvas, sphere_t* sph, image_t* bg, camera_t* cam) {
             (*canvas)[r+HEIGHT/2][c+WIDTH/2].z = (*bg)[r+HEIGHT/2][c+WIDTH/2].z; 
             // paint intersections red
             if (ray_sphere_inters(&ray, sph).z != 0) {
-                (*canvas)[r+HEIGHT/2][c+WIDTH/2].x = 255;
-                (*canvas)[r+HEIGHT/2][c+WIDTH/2].y = 0;
-                (*canvas)[r+HEIGHT/2][c+WIDTH/2].z = 0;
+                vec3_u8_t color = sphere_reflect(sph, &ray);
+                (*canvas)[r+HEIGHT/2][c+WIDTH/2].x = color.x;
+                (*canvas)[r+HEIGHT/2][c+WIDTH/2].y = color.y;
+                (*canvas)[r+HEIGHT/2][c+WIDTH/2].z = color.z;
             }
         }
     }
