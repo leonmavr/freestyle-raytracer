@@ -14,11 +14,8 @@ void rt_run(image_t* canvas, sphere_t* sph, image_t* bg, camera_t* cam) {
     // z coordinate of fov along x and y axes
     for (int r = -HEIGHT/2; r < HEIGHT/2; ++r) {
         for (int c = -WIDTH/2; c < WIDTH/2; ++c) {
-            // TODO: sub -H/2, -W/2
             end = (vec3_i32_t) {c, r, plane_z};
             ray_set(&ray, &ray.origin, &end);
-            // TODO: make vector to end
-            //ray_set(&ray, &ray.origin, )
             (*canvas)[r+HEIGHT/2][c+WIDTH/2].x = (*bg)[r+HEIGHT/2][c+WIDTH/2].x; 
             (*canvas)[r+HEIGHT/2][c+WIDTH/2].y = (*bg)[r+HEIGHT/2][c+WIDTH/2].y; 
             (*canvas)[r+HEIGHT/2][c+WIDTH/2].z = (*bg)[r+HEIGHT/2][c+WIDTH/2].z; 

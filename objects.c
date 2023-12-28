@@ -53,13 +53,12 @@ vec3_i32_t ray_sphere_inters(ray_t* ray, sphere_t* sph) {
 /* get outward normal at a point on a sphere */
 vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where) {
     vec3_i32_t normal = vec3_i32_sub(&sph->origin, where);
-    normal = vec3_i32_add(&normal, where);
-    vec3_f_t fnormal = vec3_i32_get_unit(&normal);
-    // unit(where - origin)
-    return (vec3_f_t) {fnormal.x, fnormal.y, fnormal.z};
+    const float r = sph->rad;
+    return (vec3_f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
 }
 
 static vec3_f_t vec3_f_unit_random() {
+    // acosθsinϕ,asinθsinϕ,acosϕ)
     float phi = (float)rand() / RAND_MAX * M_PI;
     float theta = (float)rand() / RAND_MAX * M_2_PI;
     float x = cos(theta) * sin(phi);
@@ -70,9 +69,14 @@ static vec3_f_t vec3_f_unit_random() {
 
 vec3_u8_t sphere_reflect(sphere_t* sph, ray_t* ray) {
     vec3_i32_t inters = ray_sphere_inters(ray, sph);
+    // TODO: normal from 0 to 1 not -1 to 1
     vec3_f_t normal = sphere_unit_normal(sph, &inters);
+    normal = (vec3_f_t) {0.5*(normal.x + 1), 0.5*(normal.y + 1), 0.5*(normal.z + 1)};
     vec3_f_t rand_unit = vec3_f_unit_random();
     vec3_f_t ps = vec3_f_add(&normal, &rand_unit);
+    if (ps.x < 0) ps.x = 0;
+    if (ps.y < 0) ps.y = 0;
+    if (ps.z < 0) ps.z = 0;
     vec3_f_t fcolor = (vec3_f_t) {normal.x * ps.x, 
                       normal.y * ps.y, normal.z * ps.z};
     //printf("%.2f, %.2f, %.2f\n", normal.x, normal.y, normal.z);
