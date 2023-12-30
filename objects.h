@@ -28,6 +28,20 @@ typedef struct camera_t {
     float fovy_rad; // field of view along y ayis (in rads)
 } camera_t;
 
+typedef enum {
+    LIGHT_AMB = 0, // ambient
+    LIGHT_POINT,   // point
+    LIGHT_DIR,     // directional
+} light_type_t;
+
+typedef struct light_t {
+    light_type_t type;
+    float intensity;
+    vec3_i32_t dir; // direction in (3D) scene
+} light_t;
+
+light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* dir);
+
 vec3_i32_t ray_at(ray_t* ray, float t);
 
 void ray_set(ray_t* ray, vec3_i32_t* start, vec3_i32_t* end);

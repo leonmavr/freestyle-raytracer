@@ -18,8 +18,12 @@ int main(int argc, char *argv[])
     camera_t cam;
     cam_set(&cam, 0, 0, 100, 60);
     sphere_t sph = (sphere_t) {(vec3_i32_t) {50, 0, 200}, 35};
-    rt_run(&canvas, &sph, &bg, &cam);
-    write_ppm(canvas);
+    light_t** lights = NULL;
+    vec3_i32_t v;
+    lights = light_add(lights, 0, 1, &v);
+    lights = light_add(lights, 0, 1, &v);
+    lights = light_add(lights, 0, 1, &v);
+    write_ppm(bg);
     image_free(bg);
     image_free(canvas);
     printf("done\n");

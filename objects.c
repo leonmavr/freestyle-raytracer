@@ -27,13 +27,6 @@ vec3_i32_t ray_sphere_inters(ray_t* ray, sphere_t* sph) {
     vec3_f_t ftmp = (vec3_f_t){utmp.x, utmp.y, utmp.z};
     const float b = 2*vec3_f_dot(&B, &ftmp);
     const float c = vec3_i32_dot(&utmp, &utmp) - r*r;
-#if 0
-    vec3 oc = r.origin() - center;
-    auto a = dot(r.direction(), r.direction());
-    auto b = 2.0 * dot(oc, r.direction());
-    auto c = dot(oc, oc) - radius*radius;
-    auto discriminant = b*b - 4*a*c;
-#endif
     // the solutions of the 2nd order equation for t
     float discr = sqrt(b*b - 4*a*c);
     if (discr > 0) {
@@ -50,7 +43,7 @@ vec3_i32_t ray_sphere_inters(ray_t* ray, sphere_t* sph) {
         return (vec3_i32_t) {0, 0, 0};
 }
 
-/* get outward normal at a point on a sphere */
+/* get outward normal positioned at origin given a point on a sphere */
 vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where) {
     vec3_i32_t normal = vec3_i32_sub(&sph->origin, where);
     const float r = sph->rad;
@@ -67,31 +60,31 @@ static vec3_f_t vec3_f_unit_random() {
     return (vec3_f_t) {x, y, z};
 }
 
-vec3_u8_t sphere_reflect(sphere_t* sph, ray_t* ray) {
-    vec3_i32_t inters = ray_sphere_inters(ray, sph);
-    // TODO: normal from 0 to 1 not -1 to 1
-    vec3_f_t normal = sphere_unit_normal(sph, &inters);
-    normal = (vec3_f_t) {0.5*(normal.x + 1), 0.5*(normal.y + 1), 0.5*(normal.z + 1)};
-    vec3_f_t rand_unit = vec3_f_unit_random();
-    vec3_f_t ps = vec3_f_add(&normal, &rand_unit);
-    if (ps.x < 0) ps.x = 0;
-    if (ps.y < 0) ps.y = 0;
-    if (ps.z < 0) ps.z = 0;
-    vec3_f_t fcolor = (vec3_f_t) {normal.x * ps.x, 
-                      normal.y * ps.y, normal.z * ps.z};
-    //printf("%.2f, %.2f, %.2f\n", normal.x, normal.y, normal.z);
-    //ray->origin = inters;
-    //ray->dir = vec3_f_get_unit(&ps);
-    float scale = 0.5*0.6*255;
-    return (vec3_u8_t) {fcolor.x * scale, fcolor.y * scale, fcolor.z * scale};
-}
-
 void cam_set(camera_t* cam, i32_t cx, i32_t cy, i32_t f, float fov_deg) {
     cam->cx = cx;
     cam->cy = cy;
     cam->f = f;
     cam->fovy_rad = DEG_TO_RAD(fov_deg);
     cam->fovx_rad = (float)WIDTH/HEIGHT*DEG_TO_RAD(fov_deg);
+}
+
+light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* dir) {
+    if (lights == NULL) {
+        lights = (light_t**) malloc(sizeof(light_t*));
+        lights[0] = malloc(sizeof(light_t));
+        // set the first light source
+        lights[0]->type = type;
+        lights[0]->intensity = intensity;
+        lights[0]->dir = *dir;
+    } else{
+        const size_t n = sizeof(lights) / sizeof(lights[0]);
+        lights = (light_t**) realloc(lights, sizeof(light_t*) * (n+1));
+        lights[n] = (light_t*) malloc(sizeof(light_t));
+        lights[n]->type = type;
+        lights[n]->intensity = intensity;
+        lights[n]->dir = *dir;
+    }
+    return lights;
 }
 
 bool cam_is_visible(camera_t* cam, vec3_i32_t* p) {
