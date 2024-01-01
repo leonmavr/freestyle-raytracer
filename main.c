@@ -20,9 +20,9 @@ int main(int argc, char *argv[])
     sphere_t sph = (sphere_t) {(vec3_i32_t) {50, 0, 200}, 35};
     light_t** lights = NULL;
     vec3_i32_t v;
-    lights = light_add(lights, 0, 1, &v);
-    lights = light_add(lights, 0, 1, &v);
-    lights = light_add(lights, 0, 1, &v);
+    light_add(lights, 0, 1, &v);
+    light_add(lights, 0, 1, &v);
+    lights[0]->geometry.dir;
     write_ppm(bg);
     image_free(bg);
     image_free(canvas);

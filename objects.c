@@ -37,7 +37,7 @@ vec3_i32_t ray_sphere_inters(ray_t* ray, sphere_t* sph) {
         const float t0 = (t1 < t2) ? t1 : t2;
         // coordinates of intersection (A+t0*B)
         vec3_i32_t inters = (vec3_i32_t) {A.x + t0*B.x, A.y + t0*B.y,
-                                        A.z + t0*B.z};
+                                          A.z + t0*B.z};
         return inters;
     } else // TODO: better way to describe intersection
         return (vec3_i32_t) {0, 0, 0};
@@ -68,23 +68,34 @@ void cam_set(camera_t* cam, i32_t cx, i32_t cy, i32_t f, float fov_deg) {
     cam->fovx_rad = (float)WIDTH/HEIGHT*DEG_TO_RAD(fov_deg);
 }
 
-light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* dir) {
+void light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* dir) {
     if (lights == NULL) {
         lights = (light_t**) malloc(sizeof(light_t*));
         lights[0] = malloc(sizeof(light_t));
         // set the first light source
         lights[0]->type = type;
-        lights[0]->intensity = intensity;
-        lights[0]->dir = *dir;
+        lights[0]->intensity = 1.0;
+        if (type == LIGHT_DIR)
+            lights[0]->geometry.dir = *dir;
+        else if (type == LIGHT_POINT)
+            lights[0]->geometry.point = *dir;
     } else{
         const size_t n = sizeof(lights) / sizeof(lights[0]);
         lights = (light_t**) realloc(lights, sizeof(light_t*) * (n+1));
         lights[n] = (light_t*) malloc(sizeof(light_t));
         lights[n]->type = type;
         lights[n]->intensity = intensity;
-        lights[n]->dir = *dir;
+        if (type == LIGHT_DIR)
+            lights[n]->geometry.dir = *dir;
+        else if (type == LIGHT_POINT)
+            lights[n]->geometry.point = *dir;
+        // normalise intensities
+        float sum_intty = .0;
+        for (size_t i = 0; i < n+1; ++i)
+            sum_intty += lights[i]->intensity;
+        for (size_t i = 0; i < n+1; ++i)
+            lights[i]->intensity /= sum_intty;
     }
-    return lights;
 }
 
 bool cam_is_visible(camera_t* cam, vec3_i32_t* p) {

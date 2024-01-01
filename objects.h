@@ -37,10 +37,13 @@ typedef enum {
 typedef struct light_t {
     light_type_t type;
     float intensity;
-    vec3_i32_t dir; // direction in (3D) scene
+    union {
+        vec3_i32_t dir; // direction in (3D) scene
+        vec3_i32_t point; // point line (3D)
+    } geometry;
 } light_t;
 
-light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* dir);
+void light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* dir);
 
 vec3_i32_t ray_at(ray_t* ray, float t);
 
