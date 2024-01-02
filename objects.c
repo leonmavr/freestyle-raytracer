@@ -13,7 +13,7 @@ vec3_i32_t ray_at(ray_t* ray, float t) {
     return vec3_i32_add(&ray->origin, &t_times_dir);
 }
 
-vec3_i32_t ray_sphere_inters(ray_t* ray, sphere_t* sph) {
+bool ray_sphere_inters(ray_t* ray, sphere_t* sph, vec3_i32_t* where) {
     // see https://raytracing.github.io/books/RayTracingInOneWeekend.html#addingasphere/ray-sphereintersection
     // for derivation and notation
     // ray(t) = A + tB, C = (Cx, Cy, Cz) centre of the sphere
@@ -29,18 +29,17 @@ vec3_i32_t ray_sphere_inters(ray_t* ray, sphere_t* sph) {
     const float c = vec3_i32_dot(&utmp, &utmp) - r*r;
     // the solutions of the 2nd order equation for t
     float discr = sqrt(b*b - 4*a*c);
-    if (discr > 0) {
+    if (discr >= 0) {
         const float sqrt_discr = sqrt(discr);
         const float t1 = (-b + sqrt_discr)/(2*a);
         const float t2 = (-b - sqrt_discr)/(2*a);
         // keep the smallest (t0)
         const float t0 = (t1 < t2) ? t1 : t2;
         // coordinates of intersection (A+t0*B)
-        vec3_i32_t inters = (vec3_i32_t) {A.x + t0*B.x, A.y + t0*B.y,
-                                          A.z + t0*B.z};
-        return inters;
-    } else // TODO: better way to describe intersection
-        return (vec3_i32_t) {0, 0, 0};
+        *where = (vec3_i32_t) {A.x + t0*B.x, A.y + t0*B.y, A.z + t0*B.z};
+        return true;
+    } else
+        return false;
 }
 
 /* get outward normal positioned at origin given a point on a sphere */
@@ -68,7 +67,21 @@ void cam_set(camera_t* cam, i32_t cx, i32_t cy, i32_t f, float fov_deg) {
     cam->fovx_rad = (float)WIDTH/HEIGHT*DEG_TO_RAD(fov_deg);
 }
 
-void light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* dir) {
+/**
+ * From "computer graphics from scratch" we define the following types:
+ * light
+ *   - type = ambient
+ *   - intensity = 0.2
+ * light
+ *   - type = point
+ *   - intensity = 0.6
+ *   - position = (2, 1, 0)
+ * light
+ *   - type = directional
+ *   - intensity = 0.2
+ *   - direction = (1, 4, 4)
+ */
+light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* light_descr) {
     if (lights == NULL) {
         lights = (light_t**) malloc(sizeof(light_t*));
         lights[0] = malloc(sizeof(light_t));
@@ -76,9 +89,9 @@ void light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t*
         lights[0]->type = type;
         lights[0]->intensity = 1.0;
         if (type == LIGHT_DIR)
-            lights[0]->geometry.dir = *dir;
+            lights[0]->geometry.dir = *light_descr;
         else if (type == LIGHT_POINT)
-            lights[0]->geometry.point = *dir;
+            lights[0]->geometry.point = *light_descr;
     } else{
         const size_t n = sizeof(lights) / sizeof(lights[0]);
         lights = (light_t**) realloc(lights, sizeof(light_t*) * (n+1));
@@ -86,9 +99,9 @@ void light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t*
         lights[n]->type = type;
         lights[n]->intensity = intensity;
         if (type == LIGHT_DIR)
-            lights[n]->geometry.dir = *dir;
+            lights[n]->geometry.dir = *light_descr;
         else if (type == LIGHT_POINT)
-            lights[n]->geometry.point = *dir;
+            lights[n]->geometry.point = *light_descr;
         // normalise intensities
         float sum_intty = .0;
         for (size_t i = 0; i < n+1; ++i)
@@ -96,6 +109,7 @@ void light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t*
         for (size_t i = 0; i < n+1; ++i)
             lights[i]->intensity /= sum_intty;
     }
+    return lights;
 }
 
 bool cam_is_visible(camera_t* cam, vec3_i32_t* p) {

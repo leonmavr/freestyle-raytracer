@@ -16,15 +16,17 @@ void rt_run(image_t* canvas, sphere_t* sph, image_t* bg, camera_t* cam) {
         for (int c = -WIDTH/2; c < WIDTH/2; ++c) {
             end = (vec3_i32_t) {c, r, plane_z};
             ray_set(&ray, &ray.origin, &end);
-            (*canvas)[r+HEIGHT/2][c+WIDTH/2].x = (*bg)[r+HEIGHT/2][c+WIDTH/2].x; 
-            (*canvas)[r+HEIGHT/2][c+WIDTH/2].y = (*bg)[r+HEIGHT/2][c+WIDTH/2].y; 
-            (*canvas)[r+HEIGHT/2][c+WIDTH/2].z = (*bg)[r+HEIGHT/2][c+WIDTH/2].z; 
+            // 2D matrix indexes
+            const size_t ir = r + HEIGHT/2, ic = c + WIDTH/2;
+            (*canvas)[ir][ic].x = (*bg)[ir][ic].x; 
+            (*canvas)[ir][ic].y = (*bg)[ir][ic].y; 
+            (*canvas)[ir][ic].z = (*bg)[ir][ic].z; 
             // paint intersections red
-            if (ray_sphere_inters(&ray, sph).z != 0) {
-                //vec3_u8_t color = sphere_reflect(sph, &ray);
-                //(*canvas)[r+HEIGHT/2][c+WIDTH/2].x = color.x;
-                //(*canvas)[r+HEIGHT/2][c+WIDTH/2].y = color.y;
-                //(*canvas)[r+HEIGHT/2][c+WIDTH/2].z = color.z;
+            vec3_i32_t where;
+            if (ray_sphere_inters(&ray, sph, &where) != 0) {
+                (*canvas)[ir][ic].x = 255;
+                (*canvas)[ir][ic].y = 0;
+                (*canvas)[ir][ic].z = 0;
             }
         }
     }
