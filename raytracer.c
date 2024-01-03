@@ -21,9 +21,9 @@ void rt_run(image_t* canvas, sphere_t* sph, image_t* bg, camera_t* cam) {
             (*canvas)[ir][ic].x = (*bg)[ir][ic].x; 
             (*canvas)[ir][ic].y = (*bg)[ir][ic].y; 
             (*canvas)[ir][ic].z = (*bg)[ir][ic].z; 
-            // paint intersections red
             vec3_i32_t where;
             if (ray_sphere_inters(&ray, sph, &where) != 0) {
+                // paint intersections red
                 (*canvas)[ir][ic].x = 255;
                 (*canvas)[ir][ic].y = 0;
                 (*canvas)[ir][ic].z = 0;

@@ -43,10 +43,16 @@ bool ray_sphere_inters(ray_t* ray, sphere_t* sph, vec3_i32_t* where) {
 }
 
 /* get outward normal positioned at origin given a point on a sphere */
-vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where) {
+vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where, bool normalise) {
     vec3_i32_t normal = vec3_i32_sub(&sph->origin, where);
     const float r = sph->rad;
-    return (vec3_f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
+    vec3_f_t ret;
+    if (!normalise)
+        ret = (vec3_f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
+    else
+        ret = (vec3_f_t) {((1.0*normal.x)/r + 1)/2, ((1.0*normal.y)/r + 1)/2, ((1.0*normal.z)/r + 1)/2};
+    return ret;
+
 }
 
 static vec3_f_t vec3_f_unit_random() {
