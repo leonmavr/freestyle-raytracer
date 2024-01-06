@@ -4,7 +4,7 @@
 #include "background.h" 
 #include <stdio.h>
 
-void rt_run(image_t* canvas, sphere_t* sph, image_t* bg, camera_t* cam) {
+void rt_run(light_t** lights, image_t* canvas, sphere_t* sph, image_t* bg, camera_t* cam) {
     ray_t ray;
     float theta = 0; // TODO camera fov
     // the plane where to send the rays to
