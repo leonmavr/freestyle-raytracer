@@ -118,6 +118,48 @@ light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i
     return lights;
 }
 
+float light_compute_lights(light_t** lights, vec3_i32_t point, vec3_f_t* normal) {
+    float intensity = 0.0;
+    const size_t n = sizeof(lights)/sizeof(lights[0]);
+    // light vector (direction/point-based)
+    vec3_i32_t lvec;
+    vec3_f_t fpoint = (vec3_f_t) {point.x, point.y, point.z};
+    printf("%d lights found\n");
+    for (size_t i = 0; i < n; ++i) {
+        if (lights[i]->type == LIGHT_AMB) {
+            intensity += lights[i]->intensity;
+        } else {
+            if (lights[i]->type == LIGHT_POINT)
+                lvec = vec3_i32_sub(fpoint, lights[i]->point);
+            else
+                lvec = lights[i]->dir;
+        }
+        // ...
+
+
+    }
+#if 0
+  i = 0.0
+    for light in scene.Lights {
+        if light.type == ambient {
+           ❶i += light.intensity
+        } else {
+            if light.type == point {
+               ❷L = light.position - P
+            } else {
+               ❸L = light.direction
+            }
+
+            n_dot_l = dot(N, L)
+           ❹if n_dot_l > 0 {
+               ❺i += light.intensity * n_dot_l/(length(N) * length(L))
+            }
+        }
+    }
+    return i
+#endif
+}
+
 bool cam_is_visible(camera_t* cam, vec3_i32_t* p) {
     // height and width of fov pyramid
     i32_t dy = HEIGHT/tan(cam->fovy_rad/2);
