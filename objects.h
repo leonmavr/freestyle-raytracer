@@ -35,7 +35,8 @@ typedef enum {
 } light_type_t;
 
 /** 
- * Each light type can have the following fields:
+ * Light source model.
+ * Each light source can have the following properties:
  * - type: identifier
  *     ambient/point/directional
  * - intensity: float
@@ -43,7 +44,7 @@ typedef enum {
  * - position: vec3  (only if type is point)
  * - direction: vec3  (only if type is directional)
  *
- * Reference:
+ * References:
  *   https://gabrielgambetta.com/computer-graphics-from-scratch/03-light.html
  */
 typedef struct light_t {
@@ -54,6 +55,16 @@ typedef struct light_t {
         vec3_i32_t point; // point line (3D)
     } geometry;
 } light_t;
+
+/**
+ * Collection of light sources. 
+ */
+typedef struct lights_t {
+    // lights (ambient/directional/point) light sources
+    light_t** lights;
+    // number of lights
+    size_t n;
+} lights_t;
 
 light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* vec_descr);
 
@@ -66,5 +77,7 @@ void cam_set(camera_t* cam, i32_t cx, i32_t cy, i32_t f, float fov_deg);
 bool cam_is_visible(camera_t* cam, vec3_i32_t* p);
 
 bool ray_sphere_inters(ray_t* ray, sphere_t* sph, vec3_i32_t* where);
+
+float light_compute_lights(light_t** lights, vec3_i32_t* point, vec3_f_t* normal);
 
 #endif /* OBJECTS_H */

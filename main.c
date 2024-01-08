@@ -20,9 +20,11 @@ int main(int argc, char *argv[])
     sphere_t sph = (sphere_t) {(vec3_i32_t) {50, 0, 200}, 35};
     light_t** lights = NULL;
     vec3_i32_t v = (vec3_i32_t) {43, 43, 44};
-    lights = light_add(lights, LIGHT_DIR, 0.6, &v);
+    vec3_i32_t u = (vec3_i32_t) {-20, 10, 20};
+    lights = light_add(lights, LIGHT_DIR, 0.3, &u);
+    //lights = light_add(lights, LIGHT_DIR, 0.6, &v);
     lights = light_add(lights, LIGHT_AMB, 2, NULL);
-    rt_run(&canvas, &sph, &bg, &cam);
+    rt_run(lights, &canvas, &sph, &bg, &cam);
     write_ppm(canvas);
     image_free(bg);
     image_free(canvas);

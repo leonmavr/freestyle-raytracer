@@ -23,8 +23,10 @@ void rt_run(light_t** lights, image_t* canvas, sphere_t* sph, image_t* bg, camer
             (*canvas)[ir][ic].z = (*bg)[ir][ic].z; 
             vec3_i32_t where;
             if (ray_sphere_inters(&ray, sph, &where) != 0) {
-                // paint intersections red
-                (*canvas)[ir][ic].x = 255;
+                const bool normalise = false;
+                vec3_f_t normal = sphere_unit_normal(sph, &where, normalise);
+                float i = light_compute_lights(lights, &where, &normal);
+                (*canvas)[ir][ic].x = (u8_t)(i * 255);
                 (*canvas)[ir][ic].y = 0;
                 (*canvas)[ir][ic].z = 0;
             }

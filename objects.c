@@ -118,46 +118,30 @@ light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i
     return lights;
 }
 
-float light_compute_lights(light_t** lights, vec3_i32_t point, vec3_f_t* normal) {
+float light_compute_lights(light_t** lights, vec3_i32_t* point, vec3_f_t* normal) {
     float intensity = 0.0;
     const size_t n = sizeof(lights)/sizeof(lights[0]);
+    printf("%d lights found\n", n);
     // light vector (direction/point-based)
     vec3_i32_t lvec;
-    vec3_f_t fpoint = (vec3_f_t) {point.x, point.y, point.z};
-    printf("%d lights found\n");
+    //vec3_f_t fpoint = (vec3_f_t) {point.x, point.y, point.z};
     for (size_t i = 0; i < n; ++i) {
         if (lights[i]->type == LIGHT_AMB) {
             intensity += lights[i]->intensity;
         } else {
             if (lights[i]->type == LIGHT_POINT)
-                lvec = vec3_i32_sub(fpoint, lights[i]->point);
+                lvec = vec3_i32_sub(point, &lights[i]->geometry.point);
             else
-                lvec = lights[i]->dir;
+                lvec = lights[i]->geometry.dir;
         }
-        // ...
-
-
+        vec3_f_t flvec = (vec3_f_t) {lvec.x, lvec.y, lvec.z};
+        // diffuse light - TODO: use Lamberdian reflection
+        float n_dot_l = vec3_f_dot(normal, &flvec);
+        if (n_dot_l > 0)
+            intensity += lights[i]->intensity * n_dot_l/
+                (vec3_f_norm(normal) * vec3_f_norm(&flvec));
     }
-#if 0
-  i = 0.0
-    for light in scene.Lights {
-        if light.type == ambient {
-           ❶i += light.intensity
-        } else {
-            if light.type == point {
-               ❷L = light.position - P
-            } else {
-               ❸L = light.direction
-            }
-
-            n_dot_l = dot(N, L)
-           ❹if n_dot_l > 0 {
-               ❺i += light.intensity * n_dot_l/(length(N) * length(L))
-            }
-        }
-    }
-    return i
-#endif
+    return intensity;
 }
 
 bool cam_is_visible(camera_t* cam, vec3_i32_t* p) {
