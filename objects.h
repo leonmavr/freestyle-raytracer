@@ -3,6 +3,7 @@
 
 #include "types.h" 
 #include <stdbool.h>
+#include <stddef.h> // size_t
 
 typedef struct ray_t {
     // direction unit vector
@@ -66,7 +67,7 @@ typedef struct lights_t {
     size_t n;
 } lights_t;
 
-light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* vec_descr);
+void light_add(lights_t* lights, light_type_t type, float intensity, vec3_i32_t* vec_descr);
 
 vec3_i32_t ray_at(ray_t* ray, float t);
 
@@ -78,6 +79,6 @@ bool cam_is_visible(camera_t* cam, vec3_i32_t* p);
 
 bool ray_sphere_inters(ray_t* ray, sphere_t* sph, vec3_i32_t* where);
 
-float light_compute_lights(light_t** lights, vec3_i32_t* point, vec3_f_t* normal);
+float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal);
 
 #endif /* OBJECTS_H */

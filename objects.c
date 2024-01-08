@@ -47,10 +47,13 @@ vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where, bool normalise) {
     vec3_i32_t normal = vec3_i32_sub(&sph->origin, where);
     const float r = sph->rad;
     vec3_f_t ret;
+    vec3_f_t fwhere = (vec3_f_t) {where->x, where->y, where->z};
     if (!normalise)
         ret = (vec3_f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
     else
         ret = (vec3_f_t) {((1.0*normal.x)/r + 1)/2, ((1.0*normal.y)/r + 1)/2, ((1.0*normal.z)/r + 1)/2};
+    // don't forget to shift the normal w.r.t the centre of the sphere
+    ret = vec3_f_add(&ret, &fwhere);
     return ret;
 
 }
@@ -87,58 +90,69 @@ void cam_set(camera_t* cam, i32_t cx, i32_t cy, i32_t f, float fov_deg) {
  *   - intensity = 0.2
  *   - direction = (1, 4, 4)
  */
-light_t** light_add(light_t** lights, light_type_t type, float intensity, vec3_i32_t* light_descr) {
-    if (lights == NULL) {
-        lights = (light_t**) malloc(sizeof(light_t*));
-        lights[0] = malloc(sizeof(light_t));
-        // set the first light source
-        lights[0]->type = type;
-        lights[0]->intensity = 1.0;
+void light_add(lights_t* lights, light_type_t type, float intensity, vec3_i32_t* light_descr) {
+    const size_t n = lights->n;
+
+    if (n == 0) {
+        lights->lights = (light_t**)malloc(sizeof(light_t*));
+        lights->lights[0] = (light_t*)malloc(sizeof(light_t));
+
+        // Set the first light source
+        lights->lights[0]->type = type;
+        lights->lights[0]->intensity = 1.0;
+
         if (type == LIGHT_DIR)
-            lights[0]->geometry.dir = *light_descr;
+            lights->lights[0]->geometry.dir = *light_descr;
         else if (type == LIGHT_POINT)
-            lights[0]->geometry.point = *light_descr;
-    } else{
-        const size_t n = sizeof(lights) / sizeof(lights[0]);
-        lights = (light_t**) realloc(lights, sizeof(light_t*) * (n+1));
-        lights[n] = (light_t*) malloc(sizeof(light_t));
-        lights[n]->type = type;
-        lights[n]->intensity = intensity;
+            lights->lights[0]->geometry.point = *light_descr;
+
+        lights->n = 1;
+    } else {
+        lights->lights = (light_t**)realloc(lights->lights, sizeof(light_t*) * (n + 1));
+        lights->lights[n] = (light_t*)malloc(sizeof(light_t));
+
+        lights->lights[n]->type = type;
+        lights->lights[n]->intensity = intensity;
+
         if (type == LIGHT_DIR)
-            lights[n]->geometry.dir = *light_descr;
+            lights->lights[n]->geometry.dir = *light_descr;
         else if (type == LIGHT_POINT)
-            lights[n]->geometry.point = *light_descr;
-        // normalise intensities
-        float sum_intty = .0;
-        for (size_t i = 0; i < n+1; ++i)
-            sum_intty += lights[i]->intensity;
-        for (size_t i = 0; i < n+1; ++i)
-            lights[i]->intensity /= sum_intty;
+            lights->lights[n]->geometry.point = *light_descr;
+
+        // Normalize intensities
+        float sum_intty = 0.0;
+        for (size_t i = 0; i < n + 1; ++i)
+            sum_intty += lights->lights[i]->intensity;
+
+        for (size_t i = 0; i < n + 1; ++i)
+            lights->lights[i]->intensity /= sum_intty;
+
+        lights->n++;
     }
-    return lights;
+
 }
 
-float light_compute_lights(light_t** lights, vec3_i32_t* point, vec3_f_t* normal) {
+float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal) {
     float intensity = 0.0;
-    const size_t n = sizeof(lights)/sizeof(lights[0]);
-    printf("%d lights found\n", n);
+    const size_t n = lights->n;
     // light vector (direction/point-based)
     vec3_i32_t lvec;
     //vec3_f_t fpoint = (vec3_f_t) {point.x, point.y, point.z};
     for (size_t i = 0; i < n; ++i) {
-        if (lights[i]->type == LIGHT_AMB) {
-            intensity += lights[i]->intensity;
+        light_t light = *lights->lights[i];
+        if (light.type == LIGHT_AMB) {
+            intensity += light.intensity;
         } else {
-            if (lights[i]->type == LIGHT_POINT)
-                lvec = vec3_i32_sub(point, &lights[i]->geometry.point);
+            if (light.type == LIGHT_POINT)
+                lvec = vec3_i32_sub(point, &light.geometry.point);
             else
-                lvec = lights[i]->geometry.dir;
+                lvec = light.geometry.dir;
         }
         vec3_f_t flvec = (vec3_f_t) {lvec.x, lvec.y, lvec.z};
         // diffuse light - TODO: use Lamberdian reflection
         float n_dot_l = vec3_f_dot(normal, &flvec);
         if (n_dot_l > 0)
-            intensity += lights[i]->intensity * n_dot_l/
+            intensity += light.intensity * n_dot_l/
                 (vec3_f_norm(normal) * vec3_f_norm(&flvec));
     }
     return intensity;
