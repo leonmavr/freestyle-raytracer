@@ -151,12 +151,52 @@ float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal
         vec3_f_t flvec = (vec3_f_t) {lvec.x, lvec.y, lvec.z};
         // diffuse light - TODO: use Lamberdian reflection
         float n_dot_l = vec3_f_dot(normal, &flvec);
-        if (n_dot_l > 0)
+        if (n_dot_l > 0) {
+#if 0
             intensity += light.intensity * n_dot_l/
                 (vec3_f_norm(normal) * vec3_f_norm(&flvec));
+#else
+/*
+ *
+ *                                     R
+ *                         ************^              #P: ray-sphere
+ *                     ****           /|****              intersection
+ *                   **              /  \   **        N: unit normal at P
+ *                 **               /   |     **      R: random point on  
+ *                *                 |    \      *        unit sphere
+ *               *                 /     |       *    PR: direction of
+ *              *                 /      |        *       reflected ray
+ *              *               </        \       *   r(t): ray
+ *              *             N   \-- phi |       *   phi: angle between
+ *               *                   \--   \     *         normal and
+ *                *                     \--|    *          reflected ray
+ *                 **                      |->#* P   
+ *                   **               ____/ **      
+ *                     ****     _____/  ****        
+ *                         ____/********            
+ *                    ____/                   
+ *              _____^                        
+ *         ____/      r(t): ray
+ *      __/                                   
+ *
+ */
+            // to follow the naming in the figure we define the following
+            // TODO: shift normal to origin and try again
+            vec3_f_t R = vec3_f_unit_random();
+            R = vec3_f_add(&R, normal);
+            vec3_f_t P = (vec3_f_t) {point->x, point->y, point->z};
+            vec3_f_t NR = vec3_f_add(normal, &R);
+            vec3_f_t fnormal = vec3_f_sub(&P, normal);
+            float cos_theta = vec3_f_dot(&NR, &fnormal)/(vec3_f_norm(&NR) * vec3_f_norm(&fnormal));
+            printf("%.2f, %.2f, %.2f\n", fnormal.x, fnormal.y, fnormal.z);
+            intensity += light.intensity * cos_theta;
+#endif
+        }
     }
     return intensity;
 }
+
+
 
 bool cam_is_visible(camera_t* cam, vec3_i32_t* p) {
     // height and width of fov pyramid
