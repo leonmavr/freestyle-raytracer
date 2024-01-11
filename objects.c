@@ -132,6 +132,14 @@ void light_add(lights_t* lights, light_type_t type, float intensity, vec3_i32_t*
 
 }
 
+static vec3_f_t vec3_f_urandom_hemisphere(vec3_f_t* normal) {
+    vec3_f_t r = vec3_f_unit_random();
+    if (vec3_f_dot(&r, normal) < 0)
+        return (vec3_f_t) {-r.x, -r.y, -r.z};
+    else 
+        return r;
+}
+
 float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal) {
     float intensity = 0.0;
     const size_t n = lights->n;
@@ -182,14 +190,27 @@ float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal
  */
             // to follow the naming in the figure we define the following
             // TODO: shift normal to origin and try again
+            vec3_f_t fN = (vec3_f_t) {normal->x, normal->y, normal->z};
             vec3_f_t R = vec3_f_unit_random();
-            R = vec3_f_add(&R, normal);
             vec3_f_t P = (vec3_f_t) {point->x, point->y, point->z};
-            vec3_f_t NR = vec3_f_add(normal, &R);
-            vec3_f_t fnormal = vec3_f_sub(&P, normal);
-            float cos_theta = vec3_f_dot(&NR, &fnormal)/(vec3_f_norm(&NR) * vec3_f_norm(&fnormal));
-            printf("%.2f, %.2f, %.2f\n", fnormal.x, fnormal.y, fnormal.z);
-            intensity += light.intensity * cos_theta;
+            fN = vec3_f_sub(&P, &fN);
+            //fN = vec3_f_add(&fN, &P);
+            R = vec3_f_add(&fN, &R);
+            //R = vec3_f_add(&P, &R);
+            float n_dot_r = vec3_f_dot(&fN, &R) / (vec3_f_norm(&fN) * vec3_f_norm(&R));
+            if (n_dot_r < 0) {
+                n_dot_r = -n_dot_r;
+                printf("oh nonono\n");
+                R = vec3_f_scalmul(&R, -1);
+            }
+            //printf("%.2f, %.2f, %.2f\n", R.x, R.y, R.z);
+            //R = (vec3_f_t) {(R.x + 1.0)/2, (R.y + 1.0)/2, (R.z + 1.0)/2};
+            //float cos_theta = n_dot_r/(vec3_f_norm(&fN) * vec3_f_norm(&R));
+            float cos_theta = n_dot_r/(vec3_f_norm(&fN) * vec3_f_norm(&R));
+            //printf("%.2f\n", acos(cos_theta));
+            intensity += light.intensity * vec3_f_norm(&R)/2.0;
+            if (intensity > 1)
+                printf("oh nonono\n");
 #endif
         }
     }

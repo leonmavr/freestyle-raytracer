@@ -17,14 +17,10 @@ int main(int argc, char *argv[])
     bg_create(&bg, &col_top, &col_bottom, &col_grass);
     camera_t cam;
     cam_set(&cam, 0, 0, 100, 60);
-    sphere_t sph = (sphere_t) {(vec3_i32_t) {80, 40, 400}, 105};
+    sphere_t sph = (sphere_t) {(vec3_i32_t) {80, -40, 400}, 105};
     lights_t lights;
-    vec3_i32_t v = (vec3_i32_t) {83, 43, 44};
-    vec3_i32_t u = (vec3_i32_t) {80, 30, 20};
-    light_add(&lights, LIGHT_DIR, 0.3, &u);
-    light_add(&lights, LIGHT_DIR, 0.3, &v);
-    light_add(&lights, LIGHT_DIR, 0.3, &u);
-    light_add(&lights, LIGHT_DIR, 0.3, &v);
+    vec3_i32_t v = (vec3_i32_t) {50, -22, 44};
+    vec3_i32_t u = (vec3_i32_t) {50, -12, 40};
     light_add(&lights, LIGHT_DIR, 0.3, &u);
     rt_run(&lights, &canvas, &sph, &bg, &cam);
     write_ppm(canvas);
