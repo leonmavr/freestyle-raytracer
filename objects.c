@@ -48,18 +48,15 @@ vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where, bool at_origin) {
     const float r = sph->rad;
     vec3_f_t ret;
     vec3_f_t fwhere = (vec3_f_t) {where->x, where->y, where->z};
-    if (at_origin)
-        ret = (vec3_f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
-    else
-        ret = (vec3_f_t) {(1.0*normal.x)/r - where->x, (1.0*normal.y)/r - where->y, (1.0*normal.z)/r - where->z};
-    // don't forget to shift the normal w.r.t the centre of the sphere
-    ret = vec3_f_add(&ret, &fwhere);
+    ret = (vec3_f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
+    if (!at_origin)
+        ret = vec3_f_add(&ret, &fwhere);
     return ret;
 
 }
 
 static vec3_f_t vec3_f_unit_random() {
-    // acosθsinϕ,asinθsinϕ,acosϕ)
+    // v = (a*cos(theta)*sin(phi), a*sin(theta)*sin(phi), a*cos(phi))
     float phi = (float)rand() / RAND_MAX * M_PI;
     float theta = (float)rand() / RAND_MAX * M_2_PI;
     float x = cos(theta) * sin(phi);
@@ -132,13 +129,6 @@ void light_add(lights_t* lights, light_type_t type, float intensity, vec3_i32_t*
 
 }
 
-static vec3_f_t vec3_f_urandom_hemisphere(vec3_f_t* normal) {
-    vec3_f_t r = vec3_f_unit_random();
-    if (vec3_f_dot(&r, normal) < 0)
-        return (vec3_f_t) {-r.x, -r.y, -r.z};
-    else 
-        return r;
-}
 
 float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal) {
     float intensity = 0.0;
@@ -157,10 +147,9 @@ float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal
                 lvec = light.geometry.dir;
         }
         vec3_f_t flvec = (vec3_f_t) {lvec.x, lvec.y, lvec.z};
-        // diffuse light - TODO: use Lamberdian reflection
         float n_dot_l = vec3_f_dot(normal, &flvec);
         if (n_dot_l > 0) {
-#if 0
+#if 1
             intensity += light.intensity * n_dot_l/
                 (vec3_f_norm(normal) * vec3_f_norm(&flvec));
 #else
@@ -190,21 +179,17 @@ float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal
  */
             // to follow the naming in the figure we define the following
             vec3_f_t fN = (vec3_f_t) {normal->x, normal->y, normal->z};
-            vec3_f_t R = vec3_f_unit_random();
-            vec3_f_t P = (vec3_f_t) {point->x, point->y, point->z};
-            fN = vec3_f_sub(&P, &fN);
-            //fN = vec3_f_add(&fN, &P);
-            R = vec3_f_add(&fN, &R);
-            //R = vec3_f_add(&P, &R);
-            float n_dot_r = vec3_f_dot(&fN, &R) / (vec3_f_norm(&fN) * vec3_f_norm(&R));
-            if (n_dot_r < 0) {
-                n_dot_r = -n_dot_r;
-                printf("oh nonono\n");
-                R = vec3_f_scalmul(&R, -1);
-            }
-            float cos_theta = n_dot_r/(vec3_f_norm(&fN) * vec3_f_norm(&R));
-            //printf("%.2f\n", acos(cos_theta));
-            intensity += light.intensity * vec3_f_norm(&R)/2.0;
+            vec3_f_t fR = vec3_f_unit_random();
+            vec3_f_t fP = (vec3_f_t) {point->x, point->y, point->z};
+
+            // shift normal to origin
+            fN = vec3_f_sub(&fP, &fN);
+            fR = vec3_f_add(&fN, &fR);
+            float n_dot_r = vec3_f_dot(&fN, &fR);
+            if (n_dot_r < 0) fR = vec3_f_scalmul(&fR, -1);
+            // the magnitude of R is up to 2 (diameter of unit sphere)
+            // so divide by 2 to normalise
+            intensity += light.intensity * vec3_f_norm(&fR)/2.0;
 #endif
         }
     }
