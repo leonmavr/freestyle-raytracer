@@ -43,15 +43,15 @@ bool ray_sphere_inters(ray_t* ray, sphere_t* sph, vec3_i32_t* where) {
 }
 
 /* get outward normal positioned at origin given a point on a sphere */
-vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where, bool normalise) {
+vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where, bool at_origin) {
     vec3_i32_t normal = vec3_i32_sub(&sph->origin, where);
     const float r = sph->rad;
     vec3_f_t ret;
     vec3_f_t fwhere = (vec3_f_t) {where->x, where->y, where->z};
-    if (!normalise)
+    if (at_origin)
         ret = (vec3_f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
     else
-        ret = (vec3_f_t) {((1.0*normal.x)/r + 1)/2, ((1.0*normal.y)/r + 1)/2, ((1.0*normal.z)/r + 1)/2};
+        ret = (vec3_f_t) {(1.0*normal.x)/r - where->x, (1.0*normal.y)/r - where->y, (1.0*normal.z)/r - where->z};
     // don't forget to shift the normal w.r.t the centre of the sphere
     ret = vec3_f_add(&ret, &fwhere);
     return ret;
@@ -189,7 +189,6 @@ float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal
  *
  */
             // to follow the naming in the figure we define the following
-            // TODO: shift normal to origin and try again
             vec3_f_t fN = (vec3_f_t) {normal->x, normal->y, normal->z};
             vec3_f_t R = vec3_f_unit_random();
             vec3_f_t P = (vec3_f_t) {point->x, point->y, point->z};
@@ -203,14 +202,9 @@ float light_compute_lights(lights_t* lights, vec3_i32_t* point, vec3_f_t* normal
                 printf("oh nonono\n");
                 R = vec3_f_scalmul(&R, -1);
             }
-            //printf("%.2f, %.2f, %.2f\n", R.x, R.y, R.z);
-            //R = (vec3_f_t) {(R.x + 1.0)/2, (R.y + 1.0)/2, (R.z + 1.0)/2};
-            //float cos_theta = n_dot_r/(vec3_f_norm(&fN) * vec3_f_norm(&R));
             float cos_theta = n_dot_r/(vec3_f_norm(&fN) * vec3_f_norm(&R));
             //printf("%.2f\n", acos(cos_theta));
             intensity += light.intensity * vec3_f_norm(&R)/2.0;
-            if (intensity > 1)
-                printf("oh nonono\n");
 #endif
         }
     }

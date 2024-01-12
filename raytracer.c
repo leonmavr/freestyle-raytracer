@@ -23,7 +23,7 @@ void rt_run(lights_t* lights, image_t* canvas, sphere_t* sph, image_t* bg, camer
             (*canvas)[ir][ic].z = (*bg)[ir][ic].z; 
             vec3_i32_t where;
             if (ray_sphere_inters(&ray, sph, &where)) {
-                const bool normalise = false;
+                const bool normalise = true;
                 vec3_f_t normal = sphere_unit_normal(sph, &where, normalise);
                 float i = light_compute_lights(lights, &where, &normal);
                 (*canvas)[ir][ic].x = (u8_t)(i * 255);

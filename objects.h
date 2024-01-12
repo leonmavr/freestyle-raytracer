@@ -19,7 +19,7 @@ typedef struct sphere_t {
     i32_t color_range;
 } sphere_t;
 
-vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where, bool normalise);
+vec3_f_t sphere_unit_normal(sphere_t* sph, vec3_i32_t* where, bool at_origin);
 
 typedef struct camera_t {
     i32_t cx; // centre x
