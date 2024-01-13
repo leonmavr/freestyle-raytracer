@@ -121,8 +121,10 @@ void light_add(lights_t* lights, light_type_t type, float intensity, vec3_i32_t*
         for (size_t i = 0; i < n + 1; ++i)
             sum_intty += lights->lights[i]->intensity;
 
-        for (size_t i = 0; i < n + 1; ++i)
-            lights->lights[i]->intensity /= sum_intty;
+	if (sum_intty > 1) {
+            for (size_t i = 0; i < n + 1; ++i)
+                lights->lights[i]->intensity /= sum_intty;
+	}
 
         lights->n++;
     }
