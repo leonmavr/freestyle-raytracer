@@ -117,41 +117,40 @@ vec2_i32_t persp_transform(cam_t* cam, vec3_i32_t* pt) {
  *        (y-cy)/z = (y' - cy)/f => y' = (y-cy)/z * f + cy
  *                             ..., x' = (x-cx)/z * f + cx
  */
-    const i32_t x = pt->x, y = pt->y, z = pt->z;
+    i32_t x = pt->x, y = pt->y, z = pt->z;
     const i32_t cx = cam->cx, cy = cam->cy, f = cam->f;
-    const i32_t ynew = (1.0*y)*f/z + cy*1.0*f/z;
-    const i32_t xnew = (1.0*x)*f/z + cx*1.0*f/z;
+    const i32_t ynew = round((1.0*y)*f/z) + cy;
+    const i32_t xnew = round((1.0*x)*f/z)2 + cx;
     return (vec2_i32_t) {xnew, ynew};
 }
 
 
 
 void rt_run(lights_t* lights, image_t* canvas, sphere_t* sph, image_t* bg, cam_t* cam) {
-    ray_t ray;
-    ray.origin = (vec3_i32_t) {0, 0, 0};
     // the plane where to send the rays to
     i32_t plane_z = (float)HEIGHT/2/tan(cam->fovy_rad/2);
-    printf("%d\n", plane_z);
+    // paint the canvas with the background
     for (int r = -HEIGHT/2; r < HEIGHT/2; ++r) {
         for (int c = -WIDTH/2; c < WIDTH/2; ++c) {
-            // where to send the ray
-            vec3_i32_t end = (vec3_i32_t) {c, r, plane_z};
-            ray_set(&ray, &ray.origin, &end);
-            // 2D matrix indexes
             const size_t ir = r + HEIGHT/2, ic = c + WIDTH/2;
             (*canvas)[ir][ic].x = (*bg)[ir][ic].x; 
             (*canvas)[ir][ic].y = (*bg)[ir][ic].y; 
             (*canvas)[ir][ic].z = (*bg)[ir][ic].z; 
+        }
+    }
+    for (int r = -HEIGHT/2; r < HEIGHT/2; ++r) {
+        for (int c = -WIDTH/2; c < WIDTH/2; ++c) {
+            ray_t ray;
+            ray.origin = (vec3_i32_t) {0, 0, 0};
+            // where to send the ray
+            vec3_i32_t end = (vec3_i32_t) {c, r, plane_z};
+            ray_set(&ray, &ray.origin, &end);
+            // 2D matrix indexes
             vec3_i32_t where;
             if (ray_sphere_inters(&ray, sph, &where)) {
                 vec2_i32_t wherexy = persp_transform(cam, &where);
                 i32_t xproj = wherexy.x + WIDTH/2;
                 i32_t yproj = wherexy.y + HEIGHT/2;
-                if (xproj > WIDTH)
-                    puts("x");
-                if (yproj > HEIGHT)
-                    puts("y");
-                printf("%d, %d\n", xproj, yproj);
                 //const bool at_origin = false;
                 //vec3_f_t normal = sphere_unit_normal(sph, &where, at_origin);
                 float i = 1.0; //light_compute_lights(lights, &where, &normal);

@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
     bg_create(&bg, &col_top, &col_bottom);
     sphere_t sph = (sphere_t) {(vec3_i32_t) {0, 0, 400}, 105};
     cam_t cam;
+    cam_init(&cam, 100, 50, 200, 60);
 #if 0
     lights_t lights;
     vec3_i32_t v = (vec3_i32_t) {500, 100, 50};
@@ -21,7 +22,6 @@ int main(int argc, char *argv[]) {
     light_add(&lights, LIGHT_AMB, 0.1, &v);
     rt_run(&lights, &canvas, &sph, &bg, &cam);
 #else
-    cam_init(&cam, 0, 0, 100, 60);
     rt_run(NULL, &canvas, &sph, &bg, &cam);
 #endif
     write_ppm(canvas, "output.ppm");
