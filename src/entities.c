@@ -1,5 +1,7 @@
 #include "entities.h"
 #include "vmath.h"
+#include "pixel_buffer.h"
+#include "utils.h"
 #include <math.h> 
 #include <stdbool.h> 
 
@@ -47,4 +49,12 @@ ray_t ray_get(vec3f_t begin, vec3f_t end) {
     ret.origin = begin;
     ret.dir = vec3f_unit(vec3f_sub(end,begin)); 
     return ret;
+}
+
+vec3i32_t cam2pbuffer(vec3f_t proj) {
+    int px = (int)lerp(0, PBUFFER_WIDTH - 1,
+                       (proj.x - camera.boundary.x0) / (camera.boundary.x1 - camera.boundary.x0));
+    int py = (int)lerp(0, PBUFFER_HEIGHT - 1,
+                       (proj.y - camera.boundary.y0) / (camera.boundary.y1 - camera.boundary.y0));
+    return (vec3i32_t) {px, py, 0};
 }

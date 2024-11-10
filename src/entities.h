@@ -25,5 +25,6 @@ typedef struct { vec3f_t dir, origin; } ray_t;
 
 vec3f_t ray_at(ray_t ray, float t);
 ray_t ray_get(vec3f_t begin, vec3f_t end);
+vec3i32_t cam2pbuffer(vec3f_t proj);
 
 #endif // ENTITIES_H
