@@ -23,6 +23,7 @@ typedef struct {
 
 typedef struct { vec3f_t dir, origin; } ray_t;
 
+void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg);
 vec3f_t ray_at(ray_t ray, float t);
 ray_t ray_get(vec3f_t begin, vec3f_t end);
 vec3i32_t cam2pbuffer(vec3f_t proj);
