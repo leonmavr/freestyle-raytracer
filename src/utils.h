@@ -9,7 +9,7 @@ static inline float lerp_float(float a, float b, float t) {
 }
 
 static inline int lerp_int(int a, int b, float t) {
-    return (int)round(a + t * (b - a));
+    return (int)(a + t * (b - a));
 }
 
 /** Linear interpolation (lerp) between two vectors */
