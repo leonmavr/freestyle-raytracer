@@ -17,7 +17,7 @@ camera_t camera;
 vec3f_t camera_project(vec3f_t xyz, bool* is_visible) {
     const float cx = camera.cx, cy = camera.cy, f = camera.f;
     // negate x and y to avoid inverted projections
-    vec3f_t projected = (vec3f_t) {-f*xyz.x/xyz.z + cx, -f*xyz.y/xyz.z + cy, -camera.f};
+    vec3f_t projected = (vec3f_t) {f*xyz.x/xyz.z - cx, f*xyz.y/xyz.z - cy, -camera.f};
     *is_visible =
         (projected.x > camera.boundary.x0 && projected.x < camera.boundary.x1) &&
         (projected.y > camera.boundary.y0 && projected.y < camera.boundary.y1);
@@ -31,10 +31,11 @@ void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
     camera.cx = cx;
     camera.cy = cy;
     camera.f = f;
-    camera.boundary.x0 = MIN(f*tan(DEG2RAD(fovx_deg/2)) + cx, f*tan(DEG2RAD(-fovx_deg/2)) - cx);
-    camera.boundary.x1 = MAX(f*tan(DEG2RAD(fovx_deg/2)) + cx, f*tan(DEG2RAD(-fovx_deg/2)) - cx);
-    camera.boundary.y0 = MIN(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) - cy);
-    camera.boundary.y1 = MAX(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) - cy);
+    camera.boundary.x0 = MIN(f*tan(DEG2RAD(fovx_deg/2)) + cx, f*tan(DEG2RAD(-fovx_deg/2)) + cx);
+    camera.boundary.x1 = MAX(f*tan(DEG2RAD(fovx_deg/2)) + cx, f*tan(DEG2RAD(-fovx_deg/2)) + cx);
+    camera.boundary.y0 = MIN(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) + cy);
+    camera.boundary.y1 = MAX(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) + cy);
+    printf("%f, %f\n", camera.boundary.y0, camera.boundary.y1);
 }
 
 
