@@ -87,6 +87,8 @@ typedef struct {
         return (vec3f_t) {v1.x/n, v1.y/n, v1.z/n};                   \
     }
 
+vec3f_t vec3ito3f(vec3i32_t v);
+
 DECLARE_VEC_ADD_FUNCTION(u8)
 DECLARE_VEC_ADD_FUNCTION(i32)
 DECLARE_VEC_ADD_FUNCTION(f)

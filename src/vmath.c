@@ -19,3 +19,4 @@ DEFINE_VEC_NORM_FUNCTION(f)
 DEFINE_VEC_GET_UNIT_FUNCTION(u8)
 DEFINE_VEC_GET_UNIT_FUNCTION(i32)
 DEFINE_VEC_GET_UNIT_FUNCTION(f)
+vec3f_t vec3ito3f(vec3i32_t v) { return (vec3f_t) {(float)v.x, (float)v.y, (float)v.z}; }

@@ -60,7 +60,7 @@ vec3i32_t cam2pbuffer(vec3f_t proj) {
     return (vec3i32_t) {px, py, 0};
 }
 
-vec3u8_t intersect_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
+vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
     *does_intersect = false;
     // see https://raytracing.github.io/books/RayTracingInOneWeekend.html#addingasphere/ray-sphereintersection
     // for derivation and notation
@@ -77,9 +77,8 @@ vec3u8_t intersect_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
         const float t2 = (-b - sqrt(discr))/(2*a);
         // keep the smallest (t0)
         const float t0 = (t1 < t2) ? t1 : t2;
-        // coordinates of intersection (A+t0*B)
         *does_intersect = true;
-        // TODO: return color based on t0's location
+        // TODO: return color based on t0's location: origin + dir*t0
         return (vec3u8_t) {255, 0, 0};
     } else {
         // TODO: return background 
