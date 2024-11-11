@@ -59,3 +59,30 @@ vec3i32_t cam2pbuffer(vec3f_t proj) {
                        (proj.y - camera.boundary.y0) / (camera.boundary.y1 - camera.boundary.y0));
     return (vec3i32_t) {px, py, 0};
 }
+
+vec3u8_t intersect_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
+    *does_intersect = false;
+    // see https://raytracing.github.io/books/RayTracingInOneWeekend.html#addingasphere/ray-sphereintersection
+    // for derivation and notation
+    // ray(t) = A + tB, C = (Cx, Cy, Cz) centre of the sphere
+    const float r = sphere.rad;
+    vec3f_t OC = vec3f_sub(sphere.origin, ray.origin);
+    float a = vec3f_dot(ray.dir, ray.dir);
+    float b = -2 * vec3f_dot(ray.dir, OC);
+    float c = vec3f_dot(OC, OC) - r*r;
+    // the solutions of the 2nd order equation for t
+    float discr = sqrt(b*b - 4*a*c);
+    if (discr >= 0) {
+        const float t1 = (-b + sqrt(discr))/(2*a);
+        const float t2 = (-b - sqrt(discr))/(2*a);
+        // keep the smallest (t0)
+        const float t0 = (t1 < t2) ? t1 : t2;
+        // coordinates of intersection (A+t0*B)
+        *does_intersect = true;
+        // TODO: return color based on t0's location
+        return (vec3u8_t) {255, 0, 0};
+    } else {
+        // TODO: return background 
+        return (vec3u8_t) {0, 0, 0};
+    }
+}
