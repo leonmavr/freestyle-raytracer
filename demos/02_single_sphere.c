@@ -21,7 +21,7 @@ void demo_camera_to_pbuffer() {
 
 
 int main() {
-    camera_init(0, 0, 100, 60, 60);
+    camera_init(0, 0, 400, 60, 60);
     sphere_t sphere;
     sphere.origin =(vec3f_t){0, 0, 800};
     sphere.rad = 75;
