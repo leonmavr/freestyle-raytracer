@@ -27,6 +27,17 @@ vec3f_t camera_project(vec3f_t xyz, bool* is_visible) {
 }
 
 
+void cam_pbuffer_init() {
+    //// allocate pixel buffer matrix
+    const int width = camera.boundary.x1 - camera.boundary.x0;
+    const int height = camera.boundary.y1 - camera.boundary.y0;
+    // allocate the pixel buffer - bottom 3 bytes of each element correspond to RGB
+    cam_pbuffer = malloc(height * sizeof(uint32_t *));
+    // TODO: check if alloc failed - pbuffer and pbuffer[0]
+    for (int i = 0; i < height; i++)
+        cam_pbuffer[i] = malloc(width * sizeof(cam_pbuffer[0]));
+}
+
 void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
     camera.init = camera_init;
     camera.project = camera_project;
@@ -37,28 +48,6 @@ void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
     camera.boundary.x1 = MAX(f*tan(DEG2RAD(fovx_deg/2)) + cx, f*tan(DEG2RAD(-fovx_deg/2)) + cx);
     camera.boundary.y0 = MIN(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) + cy);
     camera.boundary.y1 = MAX(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) + cy);
-}
-
-FILE* ppm_file;
-const char* ppm_filename;
-
-void cam_pbuffer_init() {
-    //// allocate pixel buffer matrix
-    const int width = camera.boundary.x1 - camera.boundary.x0;
-    const int height = camera.boundary.y1 - camera.boundary.y0;
-    // allocate the pixel buffer - bottom 3 bytes of each element correspond to RGB
-    cam_pbuffer = malloc(height * sizeof(uint32_t *));
-    // TODO: check if alloc failed - pbuffer and pbuffer[0]
-    for (int i = 0; i < height; i++)
-        cam_pbuffer[i] = malloc(width * sizeof(cam_pbuffer[0]));
-    //// open the file for writing
-    ppm_filename = "output.ppm";
-    ppm_file = fopen(ppm_filename, "wb");
-    if (ppm_file == NULL) {
-        perror("Error opening output file.\n");
-        return;
-    }
-    fprintf(ppm_file, "P3\n%d %d\n255\n", width, height);
 }
 
 void cam_pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
@@ -72,9 +61,17 @@ void cam_pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
     cam_pbuffer[y_idx][x_idx] = color;
 }
 
-void cam_pbuffer_save() {
-    int height = camera.boundary.y1 - camera.boundary.y0;
-    int width = camera.boundary.x1 - camera.boundary.x0;
+void cam_pbuffer_save(const char* filename) {
+    // open the file for writing
+    FILE* ppm_file = fopen(filename, "wb");
+    if (ppm_file == NULL) {
+        perror("Error opening output file.\n");
+        return;
+    }
+    const int height = camera.boundary.y1 - camera.boundary.y0;
+    const int width = camera.boundary.x1 - camera.boundary.x0;
+    fprintf(ppm_file, "P3\n%d %d\n255\n", width, height);
+    // write the pixel buffer into the file
     for (int r = 0; r < height; ++r) {
         for (int c = 0; c < width; ++c) {
             uint32_t color = cam_pbuffer[r][c];
@@ -83,7 +80,7 @@ void cam_pbuffer_save() {
         }
         fprintf(ppm_file, "\n");
     } 
-    printf("Save ray tracing output as %s.\n", ppm_filename);
+    printf("Saved ray tracing output as %s.\n", filename);
     fclose(ppm_file);
 }
 

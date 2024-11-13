@@ -20,7 +20,7 @@ typedef struct {
 extern uint32_t** cam_pbuffer;
 void cam_pbuffer_init();
 void cam_pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b);
-void cam_pbuffer_save();
+void cam_pbuffer_save(const char* filename);
 // TODO: pbuffer free
 
 extern camera_t camera;
@@ -31,11 +31,6 @@ typedef struct {
 } sphere_t;
 
 typedef struct { vec3f_t dir, origin; } ray_t;
-
-extern FILE* ppm_file;
-extern const char* ppm_filename;
-
-//void init_ppm_writer(const char* fileout);
 
 void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg);
 vec3f_t ray_at(ray_t ray, float t);

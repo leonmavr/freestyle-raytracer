@@ -28,7 +28,6 @@ int main() {
     //demo_camera_to_pbuffer();
     cam_pbuffer_init();
     render_objects(&sphere);
-    pbuffer_save_ppm("output.ppm");
-    cam_pbuffer_save();
+    cam_pbuffer_save("output.ppm");
     return 0;
 }
