@@ -131,3 +131,10 @@ vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
         return (vec3u8_t) {0, 0, 0};
     }
 }
+
+void cam_pbuffer_free() {
+    int height = camera.boundary.y1 - camera.boundary.y0;
+    for (int i = 0; i < height; ++i)
+        free(cam_pbuffer[i]);
+    free(cam_pbuffer);   
+}

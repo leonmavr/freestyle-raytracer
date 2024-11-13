@@ -21,7 +21,7 @@ extern uint32_t** cam_pbuffer;
 void cam_pbuffer_init();
 void cam_pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b);
 void cam_pbuffer_save(const char* filename);
-// TODO: pbuffer free
+void cam_pbuffer_free();
 
 extern camera_t camera;
 

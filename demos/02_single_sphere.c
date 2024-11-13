@@ -29,5 +29,6 @@ int main() {
     cam_pbuffer_init();
     render_objects(&sphere);
     cam_pbuffer_save("output.ppm");
+    cam_pbuffer_free();
     return 0;
 }
