@@ -21,12 +21,14 @@ void demo_camera_to_pbuffer() {
 
 
 int main() {
-    camera_init(0, 0, 800, 80, 80);
+    camera_init(0, 0, 100, 60, 60);
     sphere_t sphere;
     sphere.origin =(vec3f_t){0, 0, 800};
     sphere.rad = 75;
     //demo_camera_to_pbuffer();
+    cam_pbuffer_init();
     render_objects(&sphere);
     pbuffer_save_ppm("output.ppm");
+    cam_pbuffer_save();
     return 0;
 }

@@ -4,6 +4,7 @@
 #include "utils.h"
 #include <math.h> 
 #include <stdbool.h> 
+#include <stdlib.h> 
 
 
 #define PI 3.141592653589
@@ -13,6 +14,7 @@
 #define DEG2RAD(deg) ((deg) * PI / 180.0)
 
 camera_t camera;
+uint32_t** cam_pbuffer;
 
 vec3f_t camera_project(vec3f_t xyz, bool* is_visible) {
     const float cx = camera.cx, cy = camera.cy, f = camera.f;
@@ -35,9 +37,55 @@ void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
     camera.boundary.x1 = MAX(f*tan(DEG2RAD(fovx_deg/2)) + cx, f*tan(DEG2RAD(-fovx_deg/2)) + cx);
     camera.boundary.y0 = MIN(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) + cy);
     camera.boundary.y1 = MAX(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) + cy);
-    printf("%f, %f\n", camera.boundary.y0, camera.boundary.y1);
 }
 
+FILE* ppm_file;
+const char* ppm_filename;
+
+void cam_pbuffer_init() {
+    //// allocate pixel buffer matrix
+    const int width = camera.boundary.x1 - camera.boundary.x0;
+    const int height = camera.boundary.y1 - camera.boundary.y0;
+    // allocate the pixel buffer - bottom 3 bytes of each element correspond to RGB
+    cam_pbuffer = malloc(height * sizeof(uint32_t *));
+    // TODO: check if alloc failed - pbuffer and pbuffer[0]
+    for (int i = 0; i < height; i++)
+        cam_pbuffer[i] = malloc(width * sizeof(cam_pbuffer[0]));
+    //// open the file for writing
+    ppm_filename = "output.ppm";
+    ppm_file = fopen(ppm_filename, "wb");
+    if (ppm_file == NULL) {
+        perror("Error opening output file.\n");
+        return;
+    }
+    fprintf(ppm_file, "P3\n%d %d\n255\n", width, height);
+}
+
+void cam_pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
+    // as 0x00RRGGBB
+    uint32_t color = (r << 16) | (g << 8) | b;
+    const int width = camera.boundary.x1 - camera.boundary.x0;
+    const int height = camera.boundary.y1 - camera.boundary.y0;
+    // map from camera plane to 2D array indexes
+    int x_idx = (int)((x - camera.boundary.x0) / (camera.boundary.x1 - camera.boundary.x0) * (width - 1));
+    int y_idx = (int)((y - camera.boundary.y0) / (camera.boundary.y1 - camera.boundary.y0) * (height - 1));
+    cam_pbuffer[y_idx][x_idx] = color;
+}
+
+void cam_pbuffer_save() {
+    int height = camera.boundary.y1 - camera.boundary.y0;
+    int width = camera.boundary.x1 - camera.boundary.x0;
+    for (int r = 0; r < height; ++r) {
+        for (int c = 0; c < width; ++c) {
+            uint32_t color = cam_pbuffer[r][c];
+            uint8_t b = color & 0xff, g = (color >> 8) & 0xff, r = (color >> 16) & 0xff;
+            fprintf(ppm_file, "%u %u %u ", r, g, b);
+        }
+        fprintf(ppm_file, "\n");
+    } 
+    printf("Save ray tracing output as %s.\n", ppm_filename);
+    fclose(ppm_file);
+}
 
 vec3f_t ray_at(ray_t ray, float t) {
     return (vec3f_t) {ray.origin.x + t*ray.dir.x,
@@ -59,6 +107,7 @@ vec3i32_t cam2pbuffer(vec3f_t proj) {
                        (proj.y - camera.boundary.y0) / (camera.boundary.y1 - camera.boundary.y0));
     return (vec3i32_t) {px, py, 0};
 }
+
 
 vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
     *does_intersect = false;
