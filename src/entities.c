@@ -8,6 +8,7 @@
 
 
 #define PI 3.141592653589
+#define TWO_PI 2*PI
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define ABS(a) ((a) > 0 ? (a) : -(a))
@@ -15,6 +16,7 @@
 
 camera_t camera;
 uint32_t** cam_pbuffer;
+lights_t lights;
 
 vec3f_t camera_project(vec3f_t xyz, bool* is_visible) {
     const float cx = camera.cx, cy = camera.cy, f = camera.f;
@@ -105,6 +107,28 @@ vec3i32_t cam2pbuffer(vec3f_t proj) {
     return (vec3i32_t) {px, py, 0};
 }
 
+/* get outward normal positioned at origin given a point on a sphere */
+static vec3f_t sphere_unit_normal(sphere_t sphere, vec3f_t where, bool at_origin) {
+    vec3f_t normal = vec3f_sub(where, sphere.origin);
+    const float r = sphere.rad;
+    vec3f_t ret;
+    vec3f_t fwhere = (vec3f_t) {where.x, where.y, where.z};
+    ret = (vec3f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
+    if (!at_origin)
+        ret = vec3f_add(ret, fwhere);
+    return ret;
+
+}
+
+static vec3f_t vec3f_unit_random() {
+    // v = (a*cos(theta)*sin(phi), a*sin(theta)*sin(phi), a*cos(phi))
+    float phi = (float)rand() / RAND_MAX * PI;
+    float theta = (float)rand() / RAND_MAX * TWO_PI;
+    float x = cos(theta) * sin(phi);
+    float y = sin(theta) * sin(phi);
+    float z = cos(phi);
+    return (vec3f_t) {x, y, z};
+}
 
 vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
     *does_intersect = false;
@@ -137,4 +161,35 @@ void cam_pbuffer_free() {
     for (int i = 0; i < height; ++i)
         free(cam_pbuffer[i]);
     free(cam_pbuffer);   
+}
+
+static void ambient_light(float intensity) {
+    lights.light[lights.count++].intensity = intensity;
+}
+
+static void point_light(float intensity, float posx, float posy, float posz) {
+    lights.light[lights.count].intensity = intensity;
+    lights.light[lights.count++].point = (vec3f_t) {posx, posy, posz};
+}
+
+static void dir_light(float intensity, float dirx, float diry, float dirz) {
+    lights.light[lights.count].intensity = intensity;
+    lights.light[lights.count++].dir = (vec3f_t) {dirx, diry, dirz};
+}
+
+void normalize(void) {
+    float total_intensity = .0;
+    for (int i = 0; i < lights.count; ++i)
+        total_intensity += lights.light[i].intensity;
+    for (int i = 0; i < lights.count; ++i)
+        lights.light[i].intensity /= total_intensity;
+}
+
+void lights_init(void) {
+    lights.count = 0;
+    lights.init = lights_init;
+    lights.normalize = normalize;
+    lights.add.ambient_light = ambient_light;    
+    lights.add.dir_light = dir_light;    
+    lights.add.point_light = point_light;    
 }
