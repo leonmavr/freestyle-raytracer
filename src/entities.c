@@ -130,6 +130,26 @@ static vec3f_t vec3f_unit_random() {
     return (vec3f_t) {x, y, z};
 }
 
+// compute the effect of all lights at a point on an object 
+float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm) {
+    float intensity = 0.0; 
+    for (int i = 0; i < LIGHTS_CAPACITY; ++i) {
+        if (lights.light[i].type == LIGHT_AMB) {
+           intensity += lights.light[i].intensity; 
+        } else {
+            vec3f_t L = {0, 0, 0};
+            if (lights.light[i].type == LIGHT_POINT)
+                L = vec3f_sub(lights.light[i].point, inters);
+            else if (lights.light[i].type == LIGHT_POINT)
+                L = lights.light[i].dir;
+            if (vec3f_dot(L, unit_norm) > 0)
+                i += lights.light[i].intensity *
+                     vec3f_dot(L, unit_norm) / (vec3f_norm(L));
+        }
+    }
+
+}
+
 vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
     *does_intersect = false;
     // see https://raytracing.github.io/books/RayTracingInOneWeekend.html#addingasphere/ray-sphereintersection
@@ -149,6 +169,7 @@ vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
         const float t0 = (t1 < t2) ? t1 : t2;
         *does_intersect = true;
         // TODO: return color based on t0's location: origin + dir*t0
+        
         return (vec3u8_t) {255, 0, 0};
     } else {
         // TODO: return background 
