@@ -30,6 +30,7 @@ vec3f_t camera_project(vec3f_t xyz, bool* is_visible) {
 
 
 void cam_pbuffer_init() {
+    printf("cam buff init\n");
     //// allocate pixel buffer matrix
     const int width = camera.boundary.x1 - camera.boundary.x0;
     const int height = camera.boundary.y1 - camera.boundary.y0;
@@ -108,15 +109,11 @@ vec3i32_t cam2pbuffer(vec3f_t proj) {
 }
 
 /* get outward normal positioned at origin given a point on a sphere */
-static vec3f_t sphere_unit_normal(sphere_t sphere, vec3f_t where, bool at_origin) {
+static vec3f_t sphere_unit_normal(sphere_t sphere, vec3f_t where) {
     vec3f_t normal = vec3f_sub(where, sphere.origin);
     const float r = sphere.rad;
-    vec3f_t ret;
     vec3f_t fwhere = (vec3f_t) {where.x, where.y, where.z};
-    ret = (vec3f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
-    if (!at_origin)
-        ret = vec3f_add(ret, fwhere);
-    return ret;
+    return (vec3f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
 
 }
 
@@ -138,15 +135,18 @@ float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm) {
            intensity += lights.light[i].intensity; 
         } else {
             vec3f_t L = {0, 0, 0};
-            if (lights.light[i].type == LIGHT_POINT)
+            if (lights.light[i].type == LIGHT_POINT) {
                 L = vec3f_sub(lights.light[i].point, inters);
-            else if (lights.light[i].type == LIGHT_POINT)
+            } else if (lights.light[i].type == LIGHT_DIR) {
                 L = lights.light[i].dir;
-            if (vec3f_dot(L, unit_norm) > 0)
-                i += lights.light[i].intensity *
+            }
+            if (vec3f_dot(L, unit_norm) > 0) {
+                intensity += lights.light[i].intensity *
                      vec3f_dot(L, unit_norm) / (vec3f_norm(L));
+            }
         }
     }
+    return intensity;
 
 }
 
@@ -168,9 +168,11 @@ vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
         // keep the smallest (t0)
         const float t0 = (t1 < t2) ? t1 : t2;
         *does_intersect = true;
-        // TODO: return color based on t0's location: origin + dir*t0
-        
-        return (vec3u8_t) {255, 0, 0};
+        vec3f_t inters = ray_at(ray, t0);        
+        // TODO: maybe true?
+        vec3f_t normal_unit =  sphere_unit_normal(sphere, inters);
+        float intty = lights_on_sphere(inters, normal_unit);
+        return (vec3u8_t) {intty*255, 0, 0};
     } else {
         // TODO: return background 
         return (vec3u8_t) {0, 0, 0};
@@ -184,21 +186,25 @@ void cam_pbuffer_free() {
     free(cam_pbuffer);   
 }
 
-static void ambient_light(float intensity) {
+static void lights_ambient_light(float intensity) {
+    lights.light[lights.count].type = LIGHT_AMB;
     lights.light[lights.count++].intensity = intensity;
 }
 
-static void point_light(float intensity, float posx, float posy, float posz) {
+static void lights_point_light(float intensity, float posx, float posy, float posz) {
+    lights.light[lights.count].type = LIGHT_POINT;
     lights.light[lights.count].intensity = intensity;
     lights.light[lights.count++].point = (vec3f_t) {posx, posy, posz};
 }
 
-static void dir_light(float intensity, float dirx, float diry, float dirz) {
+static void lights_dir_light(float intensity, float dirx, float diry, float dirz) {
+    lights.light[lights.count].type = LIGHT_DIR;
     lights.light[lights.count].intensity = intensity;
-    lights.light[lights.count++].dir = (vec3f_t) {dirx, diry, dirz};
+    //lights.light[lights.count++].dir = (vec3f_t) {dirx, diry, dirz};
+    lights.light[lights.count++].dir = vec3f_unit((vec3f_t) {dirx, diry, dirz});
 }
 
-void normalize(void) {
+static void lights_normalize(void) {
     float total_intensity = .0;
     for (int i = 0; i < lights.count; ++i)
         total_intensity += lights.light[i].intensity;
@@ -207,10 +213,10 @@ void normalize(void) {
 }
 
 void lights_init(void) {
+    //printf("L init done\n");
+    lights.normalize = lights_normalize;
+    lights.add.ambient_light = lights_ambient_light;    
+    lights.add.dir_light = lights_dir_light;    
+    lights.add.point_light = lights_point_light;    
     lights.count = 0;
-    lights.init = lights_init;
-    lights.normalize = normalize;
-    lights.add.ambient_light = ambient_light;    
-    lights.add.dir_light = dir_light;    
-    lights.add.point_light = point_light;    
 }

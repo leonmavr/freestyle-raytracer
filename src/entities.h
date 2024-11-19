@@ -6,7 +6,7 @@
 #include <stdbool.h> 
 #include <stdio.h> 
 
-#define LIGHTS_CAPACITY 50
+#define LIGHTS_CAPACITY 25 
 
 typedef struct {
     float cx, cy;  // camera's center of perspective
@@ -75,7 +75,6 @@ typedef struct light_t {
     };
 } light_t;
 
-
 typedef struct {
     light_t light[LIGHTS_CAPACITY];  // fixed-size array of lights
     size_t count;                    // number of lights currently in the scene
@@ -88,6 +87,8 @@ typedef struct {
     void (*init)(void);
     void (*normalize)(void);
 } lights_t;
+
+void lights_init(void);
 
 extern lights_t lights;
 

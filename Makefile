@@ -3,7 +3,7 @@ SRC_DIR = src
 INC_DIR = src 
 TEST_DIR = test
 DEMO_DIR = demos
-CFLAGS = -std=c11 -O3 -I$(INC_DIR) -Wall
+CFLAGS = -std=c11 -g -I$(INC_DIR) -Wall
 LDFLAGS = -lm
 TEST_SRC = $(wildcard $(TEST_DIR)/*.c)
 # select plotter; PLOTTER=PPM to plot as ppm frames
