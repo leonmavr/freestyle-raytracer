@@ -38,10 +38,13 @@ int main() {
     lights.add.ambient_light(0.2);
     lights.add.point_light(0.3, 0, 0, -1600);
     lights.add.dir_light(0.5, 0.33, 0.33, 0.66);
+    lights.add.dir_light(0.5, 0.1, 0.53, 0.26);
     lights.normalize();
     sphere_t sphere;
     sphere.origin =(vec3f_t){100, 50, 800};
     sphere.rad = 150;
+    sphere.specular = 2000;
+    sphere.color = (vec3u8_t){200, 0, 100};
     //demo_camera_to_pbuffer();
     cam_pbuffer_init();
     render_objects(&sphere);

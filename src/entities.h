@@ -30,6 +30,8 @@ extern camera_t camera;
 typedef struct {
     vec3f_t origin;  
     float rad;
+    vec3u8_t color;
+    float specular; // low values like 10 - matte, high light 1000 - shiny
 } sphere_t;
 
 typedef struct { vec3f_t dir, origin; } ray_t;

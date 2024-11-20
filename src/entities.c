@@ -128,22 +128,38 @@ static vec3f_t vec3f_unit_random() {
 }
 
 // compute the effect of all lights at a point on an object 
-float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm) {
+float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm, vec3f_t raydir, float specular) {
     float intensity = 0.0; 
     for (int i = 0; i < LIGHTS_CAPACITY; ++i) {
         if (lights.light[i].type == LIGHT_AMB) {
            intensity += lights.light[i].intensity; 
         } else {
+            // light's direction vector
             vec3f_t L = {0, 0, 0};
+            // find the direction from the source of light
             if (lights.light[i].type == LIGHT_POINT) {
                 L = vec3f_sub(lights.light[i].point, inters);
             } else if (lights.light[i].type == LIGHT_DIR) {
                 L = lights.light[i].dir;
             }
+            // diffuse reflection
             if (vec3f_dot(L, unit_norm) > 0) {
                 intensity += lights.light[i].intensity *
                      vec3f_dot(L, unit_norm) / (vec3f_norm(L));
             }
+#if 1
+            // specular reflection
+            if (specular > -1.0) {
+                vec3f_t R = vec3f_sub(vec3f_scalmul(vec3f_scalmul(unit_norm, vec3f_dot(unit_norm, L)), 2.0), L);
+                
+                float raydir_dot_R = vec3f_dot(raydir, R);
+                if (raydir_dot_R > 0) {
+                    // ray dir needs to be a unit vector
+                    intensity += lights.light[i].intensity *
+                                 pow(raydir_dot_R/(vec3f_norm(R)), specular);
+                }
+            }
+#endif
         }
     }
     return intensity;
@@ -169,10 +185,11 @@ vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
         const float t0 = (t1 < t2) ? t1 : t2;
         *does_intersect = true;
         vec3f_t inters = ray_at(ray, t0);        
-        // TODO: maybe true?
         vec3f_t normal_unit =  sphere_unit_normal(sphere, inters);
-        float intty = lights_on_sphere(inters, normal_unit);
-        return (vec3u8_t) {intty*255, 0, 0};
+        float intty = lights_on_sphere(inters, normal_unit, ray.dir, sphere.specular);
+        return (vec3u8_t) {intty*sphere.color.x,
+                           intty*sphere.color.y,
+                           intty*sphere.color.z};
     } else {
         // TODO: return background 
         return (vec3u8_t) {0, 0, 0};
