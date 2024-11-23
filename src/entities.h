@@ -21,6 +21,7 @@ typedef struct {
 
 extern uint32_t** cam_pbuffer;
 void cam_pbuffer_init();
+vec3i32_t cam2pbuffer(vec3f_t proj);
 void cam_pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b);
 void cam_pbuffer_save(const char* filename);
 void cam_pbuffer_free();
@@ -39,7 +40,6 @@ typedef struct { vec3f_t dir, origin; } ray_t;
 void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg);
 vec3f_t ray_at(ray_t ray, float t);
 ray_t ray_get(vec3f_t begin, vec3f_t end);
-vec3i32_t cam2pbuffer(vec3f_t proj);
 vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect);
 
 typedef enum {

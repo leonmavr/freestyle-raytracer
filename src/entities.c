@@ -55,13 +55,19 @@ void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
 
 void cam_pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
     // as 0x00RRGGBB
-    uint32_t color = (r << 16) | (g << 8) | b;
+    const uint32_t color = (r << 16) | (g << 8) | b;
     const int width = camera.boundary.x1 - camera.boundary.x0;
     const int height = camera.boundary.y1 - camera.boundary.y0;
     // map from camera plane to 2D array indexes
-    int x_idx = (int)((x - camera.boundary.x0) / (camera.boundary.x1 - camera.boundary.x0) * (width - 1));
-    int y_idx = (int)((y - camera.boundary.y0) / (camera.boundary.y1 - camera.boundary.y0) * (height - 1));
+    int x_idx = lmap_float(x, camera.boundary.x0, camera.boundary.x1, 0, width - 1);
+    int y_idx = lmap_float(y, camera.boundary.y0, camera.boundary.y1, 0, height - 1);
     cam_pbuffer[y_idx][x_idx] = color;
+}
+
+vec3i32_t cam2pbuffer(vec3f_t proj) {
+    int px = lmap(proj.x, camera.boundary.x0, camera.boundary.x1, 0, PBUFFER_WIDTH);
+    int py = lmap(proj.x, camera.boundary.y0, camera.boundary.y1, 0, PBUFFER_HEIGHT);
+    return (vec3i32_t) {px, py, 0};
 }
 
 void cam_pbuffer_save(const char* filename) {
@@ -100,21 +106,12 @@ ray_t ray_get(vec3f_t begin, vec3f_t end) {
     return ret;
 }
 
-vec3i32_t cam2pbuffer(vec3f_t proj) {
-    int px = (int)lerp(0, PBUFFER_WIDTH - 1,
-                       (proj.x - camera.boundary.x0) / (camera.boundary.x1 - camera.boundary.x0));
-    int py = (int)lerp(0, PBUFFER_HEIGHT - 1,
-                       (proj.y - camera.boundary.y0) / (camera.boundary.y1 - camera.boundary.y0));
-    return (vec3i32_t) {px, py, 0};
-}
 
 /* get outward normal positioned at origin given a point on a sphere */
 static vec3f_t sphere_unit_normal(sphere_t sphere, vec3f_t where) {
     vec3f_t normal = vec3f_sub(where, sphere.origin);
     const float r = sphere.rad;
-    vec3f_t fwhere = (vec3f_t) {where.x, where.y, where.z};
     return (vec3f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
-
 }
 
 static vec3f_t vec3f_unit_random() {

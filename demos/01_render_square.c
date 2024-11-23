@@ -3,7 +3,6 @@
 #include "pixel_buffer.h"
 #include <stdio.h>
 
-
 void demo_camera_to_pbuffer() {
     // map a small square at the center of the camera into the buffer
     // assuming the camera has already finished the projection
