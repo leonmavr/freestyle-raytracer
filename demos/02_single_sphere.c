@@ -1,4 +1,5 @@
 #include "vmath.h"
+#include "lights.h"
 #include "entities.h"
 #include "pixel_buffer.h"
 #include "renderer.h"
@@ -22,7 +23,6 @@ void demo_camera_to_pbuffer() {
 
 int main() {
     camera_init(0, 0, 400, 60, 60);
-    int i = 0;
     lights_init();
     lights.add.ambient_light(0.2);
     lights.add.point_light(0.3, 0, 0, -1600);
