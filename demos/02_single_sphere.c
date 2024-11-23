@@ -32,10 +32,8 @@ int main() {
     sphere_t sphere;
     sphere.origin =(vec3f_t){100, 50, 800};
     sphere.rad = 150;
-    sphere.specular = 2000;
+    sphere.specular = 1000;
     sphere.color = (vec3u8_t){200, 0, 100};
-    //demo_camera_to_pbuffer();
-    cam_pbuffer_init();
     render_objects(&sphere);
     cam_pbuffer_save("output.ppm");
     cam_pbuffer_free();

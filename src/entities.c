@@ -29,8 +29,7 @@ vec3f_t camera_project(vec3f_t xyz, bool* is_visible) {
 }
 
 
-void cam_pbuffer_init() {
-    printf("cam buff init\n");
+static void cam_pbuffer_init() {
     //// allocate pixel buffer matrix
     const int width = camera.boundary.x1 - camera.boundary.x0;
     const int height = camera.boundary.y1 - camera.boundary.y0;
@@ -51,6 +50,7 @@ void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
     camera.boundary.x1 = MAX(f*tan(DEG2RAD(fovx_deg/2)) + cx, f*tan(DEG2RAD(-fovx_deg/2)) + cx);
     camera.boundary.y0 = MIN(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) + cy);
     camera.boundary.y1 = MAX(f*tan(DEG2RAD(fovy_deg/2)) + cy, f*tan(DEG2RAD(-fovy_deg/2)) + cy);
+    cam_pbuffer_init();
 }
 
 void cam_pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
@@ -93,7 +93,7 @@ void cam_pbuffer_save(const char* filename) {
     fclose(ppm_file);
 }
 
-vec3f_t ray_at(ray_t ray, float t) {
+static vec3f_t ray_at(ray_t ray, float t) {
     return (vec3f_t) {ray.origin.x + t*ray.dir.x,
                       ray.origin.y + t*ray.dir.y,
                       ray.origin.z + t*ray.dir.z};
@@ -144,9 +144,8 @@ float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm, vec3f_t raydir, float 
                 intensity += lights.light[i].intensity *
                      vec3f_dot(L, unit_norm) / (vec3f_norm(L));
             }
-#if 1
             // specular reflection
-            if (specular > -1.0) {
+            if (specular > -0.99 || specular < -1.01) {
                 vec3f_t R = vec3f_sub(vec3f_scalmul(vec3f_scalmul(unit_norm, vec3f_dot(unit_norm, L)), 2.0), L);
                 
                 float raydir_dot_R = vec3f_dot(raydir, R);
@@ -156,7 +155,6 @@ float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm, vec3f_t raydir, float 
                                  pow(raydir_dot_R/(vec3f_norm(R)), specular);
                 }
             }
-#endif
         }
     }
     return intensity;
