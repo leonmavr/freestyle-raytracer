@@ -3,6 +3,6 @@
 
 #include "entities.h"
 
-void render_objects(sphere_t* sphere);
+void render_objects(sphere_t* spheres, size_t num_spheres);
 
 #endif // RENDERER_H

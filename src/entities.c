@@ -75,7 +75,7 @@ float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm, vec3f_t raydir, float 
 
 }
 
-vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
+vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect, float* dist) {
     *does_intersect = false;
     // see https://raytracing.github.io/books/RayTracingInOneWeekend.html#addingasphere/ray-sphereintersection
     // for derivation and notation
@@ -96,6 +96,7 @@ vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect) {
         vec3f_t inters = ray_at(ray, t0);        
         vec3f_t normal_unit =  sphere_unit_normal(sphere, inters);
         float intty = lights_on_sphere(inters, normal_unit, ray.dir, sphere.specular);
+        *dist = vec3f_norm(vec3f_sub(ray.origin, inters));
         return (vec3u8_t) {intty*sphere.color.x,
                            intty*sphere.color.y,
                            intty*sphere.color.z};

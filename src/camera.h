@@ -28,5 +28,6 @@ extern camera_t camera;
 
 void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg);
 void camera_free();
+void dbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b, float dist);
 
 #endif // CAMERA_H
