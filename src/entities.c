@@ -7,10 +7,6 @@
 #include <stdlib.h> 
 
 
-#define TWO_PI 2*PI
-#define ABS(a) ((a) > 0 ? (a) : -(a))
-#define PI 3.141592653589
-
 static vec3f_t ray_at(ray_t ray, float t) {
     return (vec3f_t) {ray.origin.x + t*ray.dir.x,
                       ray.origin.y + t*ray.dir.y,
@@ -34,8 +30,8 @@ static vec3f_t sphere_unit_normal(sphere_t sphere, vec3f_t where) {
 
 static vec3f_t vec3f_unit_random() {
     // v = (a*cos(theta)*sin(phi), a*sin(theta)*sin(phi), a*cos(phi))
-    float phi = (float)rand() / RAND_MAX * PI;
-    float theta = (float)rand() / RAND_MAX * TWO_PI;
+    float phi = (float)rand() / RAND_MAX * UT_PI;
+    float theta = (float)rand() / RAND_MAX * UT_TWO_PI;
     float x = cos(theta) * sin(phi);
     float y = sin(theta) * sin(phi);
     float z = cos(phi);

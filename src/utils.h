@@ -3,6 +3,15 @@
 
 #include <math.h>
 
+#define UT_ABS(a) ((a) > 0 ? (a) : -(a))
+#define UT_PI 3.141592653589
+#define UT_TWO_PI 2*UT_PI
+#define UT_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define UT_MAX(a, b) ((a) > (b) ? (a) : (b))
+#define UT_DEG2RAD(deg) ((deg) * UT_PI / 180.0)
+
+
+
 /** Linear interpolation (lerp) between two scalars */
 static inline float lerp_float(float a, float b, float t) {
     return a + t * (b - a);
