@@ -12,7 +12,7 @@ void render_objects(sphere_t* sphere) {
             bool does_intersect = false;
             vec3u8_t color = hit_sphere(ray, *sphere, &does_intersect);
             if (does_intersect)
-                cam_pbuffer_write(x, y, color.x, color.y, color.z); 
+                pbuffer_write(x, y, color.x, color.y, color.z); 
         }
     }
 }

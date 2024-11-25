@@ -8,7 +8,7 @@ void draw_square() {
     int square_side = 100.0;
     for (int x = -square_side/2; x <= square_side/2; ++x) {
         for (int y = -square_side/2; y <= square_side/2; ++y) {
-            cam_pbuffer_write(x, y, 255, 0, 0);
+            pbuffer_write(x, y, 255, 0, 0);
         }
     }
 }
@@ -16,7 +16,8 @@ void draw_square() {
 
 int main() {
     camera_init(50, 25, 400, 80, 80);
+    pbuffer_init();
     draw_square();
-    cam_pbuffer_save("output.ppm");
+    pbuffer_save("output.ppm");
     return 0;
 }
