@@ -52,8 +52,8 @@ typedef struct {
     void (*normalize)(void);
 } lights_t;
 
-void lights_init(void);
 extern lights_t lights;
 
+void lights_init(void);
 
 #endif // LIGHTS_H

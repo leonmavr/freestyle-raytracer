@@ -17,14 +17,12 @@ typedef struct {
 } camera_t;
 
 extern camera_t camera;
-
 extern uint32_t** cam_pbuffer;
+
 vec3i32_t cam2pbuffer(vec3f_t proj);
 void cam_pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b);
 void cam_pbuffer_save(const char* filename);
 void cam_pbuffer_free();
 void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg);
-
-
 
 #endif // CAMERA_H
