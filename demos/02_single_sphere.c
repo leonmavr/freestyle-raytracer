@@ -1,5 +1,6 @@
 #include "vmath.h"
 #include "lights.h"
+#include "camera.h"
 #include "entities.h"
 #include "pixel_buffer.h"
 #include "renderer.h"

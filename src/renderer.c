@@ -1,5 +1,6 @@
 #include "renderer.h"
 #include "entities.h"
+#include "camera.h"
 #include "pixel_buffer.h"
 
 void render_objects(sphere_t* sphere) {
