@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 int main() {
+    // setup
     camera_init(0, 0, 400, 60, 60);
     lights_init();
     pbuffer_init();
@@ -15,13 +16,17 @@ int main() {
     lights.add.dir_light(0.5, 0.33, -0.33, 0.66);
     lights.add.dir_light(0.5, 0.1, -0.53, 0.26);
     lights.normalize();
+
     sphere_t sphere;
     sphere.origin =(vec3f_t){100, 50, 800};
     sphere.rad = 150;
     sphere.specular = 1000;
     sphere.color = (vec3u8_t){200, 0, 100};
     render_objects(&sphere);
+
+    // epilogue
     pbuffer_save("output.ppm");
     pbuffer_free();
+    camera_free();
     return 0;
 }

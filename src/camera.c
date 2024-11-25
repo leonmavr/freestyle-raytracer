@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <float.h>
 
 camera_t camera;
 uint32_t** cam_pbuffer;
@@ -43,6 +44,12 @@ void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
     // TODO: check if alloc failed - pbuffer and pbuffer[0]
     for (int i = 0; i < height; i++)
         dbuffer[i] = malloc(width * sizeof(dbuffer[0]));
+    for (int row = 0; row < height; ++row) {
+        for (int col = 0; col < width; ++col) {
+            dbuffer[row][col] = (dbuffer_entry_t) {.color = (vec3u8_t) {0, 0, 0},
+                                                   .depth = FLT_MAX};
+        }
+    }
 }
 
 void camera_free() {
