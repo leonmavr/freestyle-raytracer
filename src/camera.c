@@ -11,6 +11,7 @@
 
 camera_t camera;
 uint32_t** cam_pbuffer;
+dbuffer_entry_t** dbuffer;
 
 vec3f_t camera_project(vec3f_t xyz, bool* is_visible) {
     const float cx = camera.cx, cy = camera.cy, f = camera.f;
@@ -24,6 +25,7 @@ vec3f_t camera_project(vec3f_t xyz, bool* is_visible) {
 
 
 void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
+    // initialize camera
     camera.init = camera_init;
     camera.project = camera_project;
     camera.cx = cx;
@@ -33,4 +35,20 @@ void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
     camera.boundary.x1 = UT_MAX(f*tan(UT_DEG2RAD(fovx_deg/2)) + cx, f*tan(UT_DEG2RAD(-fovx_deg/2)) + cx);
     camera.boundary.y0 = UT_MIN(f*tan(UT_DEG2RAD(fovy_deg/2)) + cy, f*tan(UT_DEG2RAD(-fovy_deg/2)) + cy);
     camera.boundary.y1 = UT_MAX(f*tan(UT_DEG2RAD(fovy_deg/2)) + cy, f*tan(UT_DEG2RAD(-fovy_deg/2)) + cy);
+    // initialize depth buffer
+    const int width = camera.boundary.x1 - camera.boundary.x0;
+    const int height = camera.boundary.y1 - camera.boundary.y0;
+    // allocate the pixel buffer - bottom 3 bytes of each element correspond to RGB
+    dbuffer = malloc(height * sizeof(dbuffer_entry_t *));
+    // TODO: check if alloc failed - pbuffer and pbuffer[0]
+    for (int i = 0; i < height; i++)
+        dbuffer[i] = malloc(width * sizeof(dbuffer[0]));
 }
+
+void camera_free() {
+    int height = camera.boundary.y1 - camera.boundary.y0;
+    for (int i = 0; i < height; ++i)
+        free(dbuffer[i]);
+    free(dbuffer);   
+}
+
