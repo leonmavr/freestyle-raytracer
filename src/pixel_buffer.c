@@ -1,9 +1,9 @@
 #include "pixel_buffer.h"
 #include "camera.h"
 #include "utils.h"
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>  // fprintf
+#include <stdlib.h>         // malloc
+#include <stdint.h>         // uint8_t
+#include <stdio.h>          // fprintf
 
 uint32_t** pbuffer;
 
@@ -11,10 +11,10 @@ void pbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
     // as 0x00RRGGBB
     const uint32_t color = (r << 16) | (g << 8) | b;
     // map from camera plane to 2D array indexes
-    int x_idx = lmap_float(x, camera.boundary.x0, camera.boundary.x1, 0,
-                              camera.boundary.width - 1);
-    int y_idx = lmap_float(y, camera.boundary.y0, camera.boundary.y1, 0,
-                              camera.boundary.height - 1);
+    int x_idx = lmap_float(x, camera.boundary.x0, camera.boundary.x1,
+                              0, camera.boundary.width - 1);
+    int y_idx = lmap_float(y, camera.boundary.y0, camera.boundary.y1,
+                              0, camera.boundary.height - 1);
     pbuffer[y_idx][x_idx] = color;
 }
 
