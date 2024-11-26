@@ -14,21 +14,9 @@ camera_t camera;
 uint32_t** cam_pbuffer;
 float** dbuffer;
 
-vec3f_t camera_project(vec3f_t xyz, bool* is_visible) {
-    const float cx = camera.cx, cy = camera.cy, f = camera.f;
-    // negate x and y to avoid inverted projections
-    vec3f_t projected = (vec3f_t) {f*xyz.x/xyz.z - cx, f*xyz.y/xyz.z - cy, -camera.f};
-    *is_visible =
-        (projected.x > camera.boundary.x0 && projected.x < camera.boundary.x1) &&
-        (projected.y > camera.boundary.y0 && projected.y < camera.boundary.y1);
-    return projected;
-}
-
-
 void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg) {
     // initialize camera
     camera.init = camera_init;
-    camera.project = camera_project;
     camera.cx = cx;
     camera.cy = cy;
     camera.f = f;

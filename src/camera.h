@@ -12,8 +12,6 @@ typedef struct {
     struct {
         float x0, y0, x1, y1;
     } boundary;    // projection plane boundaries
-    // 2D pixel buffer array with the 3 least significant bytes corresponding to RGB
-    vec3f_t (*project)(vec3f_t xyz, bool* is_visible);
     void (*init)(float cx, float cy, float f, float fovx_deg, float fovy_deg);
 } camera_t;
 
