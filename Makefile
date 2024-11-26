@@ -1,11 +1,11 @@
-# Compiler and flags
-CC = gcc
-CFLAGS = -std=c11 -g -I$(INC_DIR) -Wall
-LDFLAGS = -lm
 # Directories
 SRC_DIR = src
 INC_DIR = src
 DEMO_DIR = demos
+# Compiler and flags
+CC = gcc
+CFLAGS = -std=c11 -g -I$(INC_DIR) -Wall
+LDFLAGS = -lm
 # Source files
 SRC = $(wildcard $(SRC_DIR)/*.c)
 DEMO_SRC = $(wildcard $(DEMO_DIR)/*.c)
@@ -27,4 +27,3 @@ $(DEMO_DIR)/%.o: $(DEMO_DIR)/%.c
 .PHONY: clean
 clean:
 	$(RM) $(TARGETS) $(SRC_DIR)/*.o $(DEMO_DIR)/*.o
-
