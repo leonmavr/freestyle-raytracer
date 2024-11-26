@@ -1,0 +1,30 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore:
+      - '*README*'
+      - 'gallery/**'
+      - 'roms/**'
+      - 'LICENSE*'
+      - '.git*'
+      - '.editor*'
+  pull_request:
+    branches: [ "master" ]
+    paths-ignore:
+      - '*README*'
+      - 'gallery/**'
+      - 'LICENSE*'
+      - '.git*'
+      - '.editor*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: make
+      run: make
