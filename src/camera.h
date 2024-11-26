@@ -11,6 +11,7 @@ typedef struct {
     float f;       // focal length
     struct {
         float x0, y0, x1, y1;
+        int width, height; // for easier referencing
     } boundary;    // projection plane boundaries
     void (*init)(float cx, float cy, float f, float fovx_deg, float fovy_deg);
 } camera_t;
