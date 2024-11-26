@@ -19,7 +19,7 @@ int main() {
     lights.add.dir_light(0.5, 0.1, -0.53, 0.26);
     lights.normalize();
 
-    sphere_t* spheres = malloc(sizeof(sphere_t)*2);
+    sphere_t spheres[2];
     spheres[0].origin =(vec3f_t){100, 200, 800};
     spheres[0].rad = 150;
     spheres[0].specular = 1000;

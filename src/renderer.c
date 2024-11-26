@@ -7,42 +7,29 @@
 #include <float.h>
 
 void render_objects(sphere_t* spheres, size_t num_spheres) {
-    const int width = camera.boundary.x1 - camera.boundary.x0;
-    const int height = camera.boundary.y1 - camera.boundary.y0;
-
     for (int y = camera.boundary.y0; y < camera.boundary.y1; ++y) {
         for (int x = camera.boundary.x0; x < camera.boundary.x1; ++x) {
             vec3i32_t proj_point = {x, y, -camera.f};
             vec3i32_t cam_origin = {camera.cx, camera.cy, 0};
             ray_t ray = ray_get(vec3ito3f(proj_point), vec3ito3f(cam_origin));
 
-            float closest_depth = FLT_MAX; // Initialize closest depth to infinity
-            vec3u8_t closest_color = {0, 0, 0}; // Default to black
-            bool has_intersection = false;
-
+            // from ray's origin to closest hit
+            float dist_closest = FLT_MAX;
+            vec3u8_t color_closest = {0, 0, 0};
             for (size_t i = 0; i < num_spheres; ++i) {
                 bool does_intersect = false;
-                float intersection_depth;
+                float dist_hit;
                 vec3u8_t color = hit_sphere(ray, spheres[i], 
-                                           &does_intersect, 
-                                           &intersection_depth);
-
-                if (does_intersect && intersection_depth < closest_depth) {
-                    closest_depth = intersection_depth;
-                    closest_color = color;
-                    has_intersection = true;
+                                            &does_intersect, 
+                                            &dist_hit);
+                if (does_intersect && dist_hit < dist_closest) {
+                    // if we have a hit, write current color to pixel buffer,
+                    // update min. depth in depth buffer
+                    dist_closest = dist_closest;
+                    color_closest = color;
+                    dbuffer_write(x, y, color_closest.x, color_closest.y, color_closest.z, dist_closest);
+                    pbuffer_write(x, y, color_closest.x, color_closest.y, color_closest.z);
                 }
-            }
-
-            if (has_intersection) {
-                // Update depth buffer and draw pixel
-                //dbuffer[y][x] = (dbuffer_entry_t) {
-                //    .color = closest_color,
-                //    .depth = closest_depth
-                //};
-                dbuffer_write(x, y, closest_color.x, closest_color.y, closest_color.z, closest_depth);
-                pbuffer_write(x, y, closest_color.x, closest_color.y, closest_color.z);
-                printf("%.2f\n", closest_depth);
             }
         }
     }
