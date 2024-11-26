@@ -25,9 +25,9 @@ void render_objects(sphere_t* spheres, size_t num_spheres) {
                 if (does_intersect && dist_hit < dist_closest) {
                     // if we have a hit, write current color to pixel buffer,
                     // update min. depth in depth buffer
-                    dist_closest = dist_closest;
+                    dist_closest = dist_hit;
                     color_closest = color;
-                    dbuffer_write(x, y, color_closest.x, color_closest.y, color_closest.z, dist_closest);
+                    dbuffer_write(x, y, dist_closest);
                     pbuffer_write(x, y, color_closest.x, color_closest.y, color_closest.z);
                 }
             }

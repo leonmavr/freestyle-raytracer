@@ -17,17 +17,11 @@ typedef struct {
     void (*init)(float cx, float cy, float f, float fovx_deg, float fovy_deg);
 } camera_t;
 
-/** Depth buffer matrix entry for the camera projection plane */
-typedef struct {
-    vec3u8_t color;  
-    float depth;
-} dbuffer_entry_t;
-
-extern dbuffer_entry_t** dbuffer;
+extern float** dbuffer;
 extern camera_t camera;
 
 void camera_init(float cx, float cy, float f, float fovx_deg, float fovy_deg);
 void camera_free();
-void dbuffer_write(int x, int y, uint8_t r, uint8_t g, uint8_t b, float dist);
+void dbuffer_write(int x, int y, float dist);
 
 #endif // CAMERA_H

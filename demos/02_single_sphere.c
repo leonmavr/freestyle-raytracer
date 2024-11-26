@@ -20,11 +20,11 @@ int main() {
     lights.normalize();
 
     sphere_t spheres[2];
-    spheres[0].origin =(vec3f_t){100, 200, 800};
+    spheres[0].origin =(vec3f_t){100, 200, 1000};
     spheres[0].rad = 150;
     spheres[0].specular = 1000;
     spheres[0].color = (vec3u8_t){200, 0, 100};
-    spheres[1].origin =(vec3f_t){10, 50, 800};
+    spheres[1].origin =(vec3f_t){10, 50, 600};
     spheres[1].rad = 120;
     spheres[1].specular = 500;
     spheres[1].color = (vec3u8_t){100, 0, 200};
