@@ -32,7 +32,7 @@ static vec3f_t sphere_unit_normal(sphere_t sphere, vec3f_t where) {
 static ray_t shadow_ray_get(vec3f_t intersection, sphere_t sphere, light_t light) {
     const float epsilon = 0.1f; // Small offset to avoid self-intersection
     vec3f_t normal = vec3f_unit(vec3f_sub(intersection, sphere.origin));
-    vec3f_t offset_origin = vec3f_add(intersection, vec3f_scalmul(normal, sphere.rad + epsilon));
+    vec3f_t offset_origin = vec3f_add(intersection, vec3f_scalmul(normal, epsilon));
     
     ray_t ret = (ray_t) {.origin = offset_origin, .dir = (vec3f_t) {0, 0, 0}};
 
