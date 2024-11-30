@@ -28,6 +28,25 @@ static vec3f_t sphere_unit_normal(sphere_t sphere, vec3f_t where) {
     return (vec3f_t) {(1.0*normal.x)/r, (1.0*normal.y)/r, (1.0*normal.z)/r};
 }
 
+
+static ray_t shadow_ray_get(vec3f_t intersection, sphere_t sphere, light_t light) {
+    const float epsilon = 0.1f; // Small offset to avoid self-intersection
+    vec3f_t normal = vec3f_unit(vec3f_sub(intersection, sphere.origin));
+    vec3f_t offset_origin = vec3f_add(intersection, vec3f_scalmul(normal, sphere.rad + epsilon));
+    
+    ray_t ret = (ray_t) {.origin = offset_origin, .dir = (vec3f_t) {0, 0, 0}};
+
+    if (light.type == LIGHT_POINT) {
+        // towards the light source
+        ret.dir= vec3f_unit(vec3f_sub(light.point, offset_origin));
+    } else if (light.type == LIGHT_DIR) {
+        // opposite direction of the directional light
+        ret.dir= vec3f_scalmul(light.dir, -1.0f);
+    }
+    return ret;
+}
+
+
 static vec3f_t vec3f_unit_random() {
     // v = (a*cos(theta)*sin(phi), a*sin(theta)*sin(phi), a*cos(phi))
     float phi = (float)rand() / RAND_MAX * UT_PI;
