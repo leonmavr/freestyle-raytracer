@@ -22,7 +22,7 @@ void render_objects(sphere_t* spheres, size_t num_spheres) {
                 float dist_hit;
                 vec3u8_t color = hit_sphere(ray, spheres[i], 
                                             &does_intersect, 
-                                            &dist_hit);
+                                            &dist_hit, spheres, num_spheres);
                 if (does_intersect && dist_hit < dist_closest) {
                     // if we have a hit, write current color to pixel buffer,
                     // update min. depth in depth buffer

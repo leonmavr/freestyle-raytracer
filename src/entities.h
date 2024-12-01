@@ -15,6 +15,6 @@ typedef struct {
 } sphere_t;
 
 ray_t ray_get(vec3f_t begin, vec3f_t end);
-vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect, float* dist);
+vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect, float* dist, sphere_t* spheres, int num_spheres);
 
 #endif // ENTITIES_H

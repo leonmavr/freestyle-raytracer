@@ -46,6 +46,19 @@ static ray_t shadow_ray_get(vec3f_t intersection, sphere_t sphere, light_t light
     return ret;
 }
 
+static bool ray_hits_sphere(ray_t ray, sphere_t sphere) {
+    // see https://raytracing.github.io/books/RayTracingInOneWeekend.html#addingasphere/ray-sphereintersection
+    // for derivation and notation
+    // ray(t) = A + tB, C = (Cx, Cy, Cz) centre of the sphere
+    const float r = sphere.rad;
+    vec3f_t OC = vec3f_sub(sphere.origin, ray.origin);
+    float a = vec3f_dot(ray.dir, ray.dir);
+    float b = -2 * vec3f_dot(ray.dir, OC);
+    float c = vec3f_dot(OC, OC) - r*r;
+    // the solutions of the 2nd order equation for t
+    float discr = sqrt(b*b - 4*a*c);
+    return discr >= 0;
+}
 
 static vec3f_t vec3f_unit_random() {
     // v = (a*cos(theta)*sin(phi), a*sin(theta)*sin(phi), a*cos(phi))
@@ -58,7 +71,7 @@ static vec3f_t vec3f_unit_random() {
 }
 
 // compute the effect of all lights at a point on an object 
-float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm, vec3f_t raydir, float specular) {
+float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm, vec3f_t raydir, float specular, sphere_t* spheres, int num_spheres) {
     float intensity = 0.0; 
     for (int i = 0; i < LIGHTS_CAPACITY; ++i) {
         if (lights.light[i].type == LIGHT_AMB) {
@@ -72,6 +85,10 @@ float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm, vec3f_t raydir, float 
             } else if (lights.light[i].type == LIGHT_DIR) {
                 L = lights.light[i].dir;
             }
+	    // TODO: get shadow ray from intersection, if shadow meets any other sphere
+	    // then skip the reflections (continue loop)
+
+
             // diffuse reflection
             if (vec3f_dot(L, unit_norm) > 0) {
                 intensity += lights.light[i].intensity *
@@ -94,7 +111,8 @@ float lights_on_sphere(vec3f_t inters, vec3f_t unit_norm, vec3f_t raydir, float 
 
 }
 
-vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect, float* dist) {
+
+vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect, float* dist, sphere_t* spheres, int num_spheres) {
     *does_intersect = false;
     // see https://raytracing.github.io/books/RayTracingInOneWeekend.html#addingasphere/ray-sphereintersection
     // for derivation and notation
@@ -114,7 +132,7 @@ vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect, float* dis
         *does_intersect = true;
         vec3f_t inters = ray_at(ray, t0);        
         vec3f_t normal_unit =  sphere_unit_normal(sphere, inters);
-        float intty = lights_on_sphere(inters, normal_unit, ray.dir, sphere.specular);
+        float intty = lights_on_sphere(inters, normal_unit, ray.dir, sphere.specular, spheres, num_spheres);
         *dist = vec3f_norm(vec3f_sub(ray.origin, inters));
         return (vec3u8_t) {intty*sphere.color.x,
                            intty*sphere.color.y,
