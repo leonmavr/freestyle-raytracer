@@ -8,6 +8,15 @@
 #include "utils.h"
 #include "vmath.h"
 
+sphere_t sphere_make(vec3f_t origin, float rad, vec3u8_t color, float specular)
+{
+    return (sphere_t){.origin = origin,
+                      .rad = rad,
+                      .color = color,
+                      .specular = specular,
+                      .id = xrandom()};
+}
+
 static vec3f_t ray_at(ray_t ray, float t)
 {
     return (vec3f_t){ray.origin.x + t * ray.dir.x, ray.origin.y + t * ray.dir.y,
@@ -102,16 +111,14 @@ float lights_on_sphere(sphere_t sphere, vec3f_t inters, vec3f_t unit_norm,
             else if (lights.light[i].type == LIGHT_DIR)
                 L = lights.light[i].dir;
             ray_t shadow_ray = shadow_ray_get(inters, sphere, lights.light[i]);
-            bool  is_shadow = false;
+            bool  is_in_shadow = false;
             for (int j = 0; j < num_spheres; ++j)
             {
-                // TODO: self-intersection
-                bool self_inters = (spheres[j].rad < (sphere.rad + 0.1)) &&
-                                   (spheres[j].rad > (sphere.rad - 0.1));
+                const bool self_inters = spheres[j].id == sphere.id;
                 if (!self_inters && ray_hits_sphere(shadow_ray, spheres[j]))
-                    is_shadow = true;
+                    is_in_shadow = true;
             }
-            if (is_shadow) continue;
+            if (is_in_shadow) continue;
 
             // diffuse reflection
             if (vec3f_dot(L, unit_norm) > 0)
