@@ -19,17 +19,9 @@ int main()
 
     sphere_t spheres[3];
     spheres[0].origin = (vec3f_t){100, 200, 600};
-    spheres[0].rad = 150;
-    spheres[0].specular = 1000;
-    spheres[0].color = (vec3u8_t){200, 0, 100};
-    spheres[1].origin = (vec3f_t){100, 80, 1000};
-    spheres[1].rad = 120;
-    spheres[1].specular = 500;
-    spheres[1].color = (vec3u8_t){100, 0, 200};
-    spheres[2].origin = (vec3f_t){-50, 70, 800};
-    spheres[2].rad = 45;
-    spheres[2].specular = 400;
-    spheres[2].color = (vec3u8_t){0, 200, 50};
+    spheres[0] = sphere_make((vec3f_t){100, 200, 600}, 150, (vec3u8_t){200, 0, 100}, 1000);
+    spheres[1] = sphere_make((vec3f_t){100, 80, 1000}, 120, (vec3u8_t){100, 0, 100}, 500);
+    spheres[2] = sphere_make((vec3f_t){-50, 70, 800}, 45, (vec3u8_t){0, 200, 50}, 400);
     render_objects(spheres, 3);
 
     // epilogue
