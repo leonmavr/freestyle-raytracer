@@ -57,7 +57,7 @@ static ray_t shadow_ray_get(vec3f_t intersection, sphere_t sphere,
     else if (light.type == LIGHT_DIR)
     {
         // opposite direction of the directional light
-        ret.dir = vec3f_scalmul(light.dir, -1.0f);
+        ret.dir.z = -ret.dir.z;
     }
     return ret;
 }
