@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "vmath.h"
 #include <math.h>
 
 #define UT_ABS(a) ((a) > 0 ? (a) : -(a))
@@ -9,7 +10,6 @@
 #define UT_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define UT_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define UT_DEG2RAD(deg) ((deg) * UT_PI / 180.0)
-
 
 
 /** Linear interpolation (lerp) between two scalars */
@@ -82,5 +82,19 @@ static inline vec3f_t lmap_vec3f(vec3f_t x, vec3f_t a, vec3f_t b, vec3f_t c, vec
     vec3u8_t: lmap_vec3u8,                                 \
     vec3f_t: lmap_vec3f                                    \
 )(x, a, b, c, d)
+
+/* Random number generator - originally by @Skeeto */
+enum { XRAND_MAX = 0x7fffffff, LGC_FULL_PERIOD = 0x3243f6a8885a308d};
+
+static unsigned long long xrandom_state = 1;
+
+static void xsrandom(unsigned long long seed) {
+    xrandom_state = seed;
+}
+
+static int xrandom(void) {
+    xrandom_state = xrandom_state*LGC_FULL_PERIOD+ 1;
+    return xrandom_state >> 33;
+}
 
 #endif // UTILS_H
