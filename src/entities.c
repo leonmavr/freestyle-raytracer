@@ -8,12 +8,14 @@
 #include "utils.h"
 #include "vmath.h"
 
-sphere_t sphere_make(vec3f_t origin, float rad, vec3u8_t color, float specular)
+sphere_t sphere_make(vec3f_t origin, float rad, vec3u8_t color, float specular,
+                     float reflective)
 {
     return (sphere_t){.origin = origin,
                       .rad = rad,
                       .color = color,
                       .specular = specular,
+                      .reflective = reflective,
                       .id = xrandom()};
 }
 
@@ -38,6 +40,16 @@ static vec3f_t sphere_unit_normal(sphere_t sphere, vec3f_t where)
     const float r = sphere.rad;
     return (vec3f_t){(1.0 * normal.x) / r, (1.0 * normal.y) / r,
                      (1.0 * normal.z) / r};
+}
+
+// Compute the reflected vector given an incident direction and a surface normal
+static vec3f_t vec3f_reflect(vec3f_t incident, vec3f_t normal)
+{
+    // R = D - 2 * (D . N) * N
+    float   d_dot_n = vec3f_dot(incident, normal);
+    vec3f_t normal_scaled = vec3f_scalmul(normal, 2 * d_dot_n);
+    vec3f_t reflected = vec3f_sub(incident, normal_scaled);
+    return reflected;
 }
 
 static ray_t shadow_ray_get(vec3f_t intersection, sphere_t sphere,
