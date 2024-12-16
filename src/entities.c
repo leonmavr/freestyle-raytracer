@@ -1,5 +1,6 @@
 #include "entities.h"
 
+#include <float.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -30,6 +31,7 @@ ray_t ray_get(vec3f_t begin, vec3f_t end)
     ray_t ret;
     ret.origin = begin;
     ret.dir = vec3f_unit(vec3f_sub(end, begin));
+    ret.bounces = 0;
     return ret;
 }
 
@@ -103,7 +105,7 @@ static vec3f_t vec3f_unit_random()
 
 // compute the effect of all lights at a point on an object
 float lights_on_sphere(sphere_t sphere, vec3f_t inters, vec3f_t unit_norm,
-                       vec3f_t raydir, float specular, sphere_t* spheres,
+                       ray_t* ray, float specular, sphere_t* spheres,
                        int num_spheres)
 {
     float intensity = 0.0;
@@ -144,7 +146,7 @@ float lights_on_sphere(sphere_t sphere, vec3f_t inters, vec3f_t unit_norm,
                         vec3f_scalmul(unit_norm, vec3f_dot(unit_norm, L)), 2.0),
                     L);
 
-                float raydir_dot_R = vec3f_dot(raydir, R);
+                float raydir_dot_R = vec3f_dot(ray->dir, R);
                 if (raydir_dot_R > 0)
                 {
                     // ray dir needs to be a unit vector
@@ -157,8 +159,8 @@ float lights_on_sphere(sphere_t sphere, vec3f_t inters, vec3f_t unit_norm,
     return intensity;
 }
 
-vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect,
-                    float* dist, sphere_t* spheres, int num_spheres)
+ray_t hit_sphere(ray_t* ray, sphere_t sphere, bool* does_intersect, float* dist,
+                 sphere_t* spheres, int num_spheres, vec3u8_t* color)
 {
     *does_intersect = false;
     // see
@@ -166,9 +168,9 @@ vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect,
     // for derivation and notation
     // ray(t) = A + tB, C = (Cx, Cy, Cz) centre of the sphere
     const float r = sphere.rad;
-    vec3f_t     OC = vec3f_sub(sphere.origin, ray.origin);
-    float       a = vec3f_dot(ray.dir, ray.dir);
-    float       b = -2 * vec3f_dot(ray.dir, OC);
+    vec3f_t     OC = vec3f_sub(sphere.origin, ray->origin);
+    float       a = vec3f_dot(ray->dir, ray->dir);
+    float       b = -2 * vec3f_dot(ray->dir, OC);
     float       c = vec3f_dot(OC, OC) - r * r;
     // the solutions of the 2nd order equation for t
     float discr = sqrt(b * b - 4 * a * c);
@@ -179,17 +181,35 @@ vec3u8_t hit_sphere(ray_t ray, sphere_t sphere, bool* does_intersect,
         // keep the smallest (t0)
         const float t0 = (t1 < t2) ? t1 : t2;
         *does_intersect = true;
-        vec3f_t inters = ray_at(ray, t0);
+        vec3f_t inters = ray_at(*ray, t0);
         vec3f_t normal_unit = sphere_unit_normal(sphere, inters);
-        float   intty = lights_on_sphere(sphere, inters, normal_unit, ray.dir,
+        float   intty = lights_on_sphere(sphere, inters, normal_unit, ray,
                                          sphere.specular, spheres, num_spheres);
-        *dist = vec3f_norm(vec3f_sub(ray.origin, inters));
-        return (vec3u8_t){intty * sphere.color.x, intty * sphere.color.y,
-                          intty * sphere.color.z};
+        *dist = vec3f_norm(vec3f_sub(ray->origin, inters));
+        *color = (vec3u8_t){intty * sphere.color.x, intty * sphere.color.y,
+                            intty * sphere.color.z};
+        // TODO: change ray direction after reflection
+        //
+    }
+#if 1
+    printf("%d\n", ray->bounces);
+    if (ray->bounces >= MAX_BOUNCES)
+    {
+        return *ray;
     }
     else
     {
-        // TODO: return background
-        return (vec3u8_t){0, 0, 0};
+        ray->bounces++;
+        bool  does_intersect = false;
+        float dist = FLT_MAX;
+        for (int i = 0; i < num_spheres; ++i)
+        {
+            if (spheres[i].id == sphere.id)  // Skip self-intersection
+                continue;
+
+            hit_sphere(ray, sphere, &does_intersect, &dist, spheres,
+                       num_spheres, color);
+        }
     }
+#endif
 }

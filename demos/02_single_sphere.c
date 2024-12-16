@@ -21,11 +21,11 @@ int main()
 
     sphere_t spheres[4];
     spheres[0] = sphere_make((vec3f_t){100, 170, 600}, 80,
-                             (vec3u8_t){200, 0, 100}, 1000., 1);
+                             (vec3u8_t){200, 0, 100}, 100., 1);
     spheres[1] = sphere_make((vec3f_t){100, 80, 1000}, 120,
                              (vec3u8_t){100, 0, 100}, 500., 0);
     spheres[2] = sphere_make((vec3f_t){-50, 70, 1400}, 80,
-                             (vec3u8_t){0, 200, 50}, 300., 1);
+                             (vec3u8_t){0, 200, 50}, 100., 1);
     spheres[3] = sphere_make((vec3f_t){50, -200, 600}, 80,
                              (vec3u8_t){220, 180, 0}, 300., 0);
     printf("%d\n", sizeof(spheres) / sizeof(spheres[0]));
